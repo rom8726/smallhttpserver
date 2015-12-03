@@ -10,8 +10,6 @@
 
 namespace Network {
 
-    DECLARE_RUNTIME_EXCEPTION(HttpRequest)
-
     struct IHttpRequest {
         enum class Type {
             HEAD, GET, PUT, POST

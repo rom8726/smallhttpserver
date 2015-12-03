@@ -15,8 +15,6 @@
 
 namespace Network {
 
-    DECLARE_RUNTIME_EXCEPTION(HttpServer)
-
     class HttpServer final
             : private Common::NonCopyable {
     public:
