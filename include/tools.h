@@ -5,6 +5,7 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     class BoolFlagInvertor final
             : private NonCopyable {
     public:

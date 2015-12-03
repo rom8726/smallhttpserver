@@ -5,6 +5,7 @@
 
 namespace Network {
 
+    //----------------------------------------------------------------------
     class HttpRuntimeException : public std::runtime_error {
     public:
         HttpRuntimeException(const std::string &arg)
@@ -21,6 +22,7 @@ namespace Network {
         int code = 0;
     };
 
+    //----------------------------------------------------------------------
     class HttpRequestException : public HttpRuntimeException {
     public:
         HttpRequestException(const std::string &arg)
@@ -30,6 +32,7 @@ namespace Network {
                 : HttpRuntimeException(_code, arg) { }
     };
 
+    //----------------------------------------------------------------------
     class HttpServerException : public HttpRuntimeException {
     public:
         HttpServerException(const std::string &arg)

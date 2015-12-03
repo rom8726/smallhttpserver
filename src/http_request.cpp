@@ -44,16 +44,16 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    RequestType HttpRequest::getRequestType() const {
+    HttpRequestType HttpRequest::getRequestType() const {
         switch (evhttp_request_get_command(m_request)) {
             case EVHTTP_REQ_GET :
-                return RequestType::GET;
+                return HttpRequestType::GET;
             case EVHTTP_REQ_POST :
-                return RequestType::POST;
+                return HttpRequestType::POST;
             case EVHTTP_REQ_HEAD :
-                return RequestType::HEAD;
+                return HttpRequestType::HEAD;
             case EVHTTP_REQ_PUT :
-                return RequestType::PUT;
+                return HttpRequestType::PUT;
             default :
                 break;
         }

@@ -56,15 +56,15 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    int httpRequestTypeToAllowedMethod(const RequestType &type) {
+    int httpRequestTypeToAllowedMethod(const HttpRequestType &type) {
         switch (type) {
-            case RequestType::GET :
+            case HttpRequestType::GET :
                 return EVHTTP_REQ_GET;
-            case RequestType::HEAD :
+            case HttpRequestType::HEAD :
                 return EVHTTP_REQ_HEAD;
-            case RequestType::PUT :
+            case HttpRequestType::PUT :
                 return EVHTTP_REQ_PUT;
-            case RequestType::POST :
+            case HttpRequestType::POST :
                 return EVHTTP_REQ_POST;
             default :
                 break;
@@ -73,11 +73,14 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
     HttpServer::HttpServer(const std::string &address, std::uint16_t port,
                            std::uint16_t threadCount, const OnRequestFunc &onRequest,
                            const MethodPool &allowedMethodsArg,
                            std::size_t maxHeadersSize, std::size_t maxBodySize)
-            : m_isRunInvertor(&m_isRun) {
+            : m_isRunInvertor(&m_isRun)
+    {
+
         int allowedMethods = -1;
         for (const auto i : allowedMethodsArg)
             allowedMethods |= httpRequestTypeToAllowedMethod(i);

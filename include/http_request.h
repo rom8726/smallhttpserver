@@ -35,7 +35,7 @@ namespace Network {
             ::operator delete(const_cast<void *>(data));
         }
 
-        virtual RequestType getRequestType() const;
+        virtual HttpRequestType getRequestType() const;
 
         virtual const std::string getHeaderAttr(const char *attrName) const;
 

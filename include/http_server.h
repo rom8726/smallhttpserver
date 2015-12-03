@@ -16,9 +16,10 @@ namespace Network {
 
     //----------------------------------------------------------------------
     class HttpServer final
-            : private Common::NonCopyable {
+            : private Common::NonCopyable
+    {
     public:
-        typedef std::vector<RequestType> MethodPool;
+        typedef std::vector<HttpRequestType> MethodPool;
         typedef std::function<void(IHttpRequestPtr)> OnRequestFunc;
         enum {
             MaxHeaderSize = static_cast<std::size_t>(-1), MaxBodySize = MaxHeaderSize
@@ -26,7 +27,7 @@ namespace Network {
 
         HttpServer(const std::string &address, std::uint16_t port,
                    std::uint16_t threadCount, const OnRequestFunc &onRequest,
-                   const MethodPool &allowedMethodsArg = {RequestType::GET},
+                   const MethodPool &allowedMethodsArg = {HttpRequestType::GET},
                    std::size_t maxHeadersSize = MaxHeaderSize,
                    std::size_t maxBodySize = MaxBodySize);
 
@@ -43,11 +44,6 @@ namespace Network {
 
         Common::BoolFlagInvertor m_isRunInvertor;
     };
-
-
-    //----------------------------------------------------------------------
-//    void onRawRequest(evhttp_request* request, void* prm);
-//    int httpRequestTypeToAllowedMethod(const RequestType & type);
 
 }
 

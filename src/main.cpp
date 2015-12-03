@@ -7,6 +7,7 @@
 #include <mutex>
 
 int main() {
+
     char const srvAddress[] = "127.0.0.1";
     std::uint16_t srvPort = 5555;
     std::uint16_t srvThreadCount = 4;

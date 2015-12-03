@@ -3,6 +3,7 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     class NonCopyable {
     public:
         NonCopyable(const NonCopyable &) = delete;

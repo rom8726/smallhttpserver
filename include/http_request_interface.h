@@ -15,7 +15,7 @@ namespace Network {
 
     typedef std::shared_ptr<IHttpRequest> IHttpRequestPtr;
     typedef std::unordered_map<std::string, std::string> HttpRequestParams;
-    enum class RequestType {
+    enum class HttpRequestType {
         HEAD, GET, PUT, POST
     };
 
@@ -25,7 +25,7 @@ namespace Network {
 
         virtual ~IHttpRequest() { }
 
-        virtual RequestType getRequestType() const = 0;
+        virtual HttpRequestType getRequestType() const = 0;
 
         virtual const std::string getHeaderAttr(const char *attrName) const = 0;
 
