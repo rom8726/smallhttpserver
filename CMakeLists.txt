@@ -6,11 +6,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(./include)
 
 set(SOURCE_FILES
-        include/http_content_type.h
-        include/http_headers.h
-        include/static_counter.h
-        include/string_constant.h
-        include/type_registry.h
+#        include/http_content_type.h
+#        include/http_headers.h
+#        include/static_counter.h
+#        include/string_constant.h
+#        include/type_registry.h
 
         src/main.cpp
         src/http_server.cpp

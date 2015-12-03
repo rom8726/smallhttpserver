@@ -5,8 +5,6 @@
 #include "tools.h"
 #include "http_request_interface.h"
 
-//#include <cstdint>
-//#include <functional>
 #include <memory>
 #include <vector>
 #include <thread>
@@ -32,7 +30,6 @@ namespace Network {
                    std::size_t maxBodySize = MaxBodySize);
 
     private:
-        volatile bool m_isRun = true;
 
         void (*threadDeleterFunct)(std::thread *t) = [](std::thread *t) {
             t->join();
@@ -42,6 +39,7 @@ namespace Network {
         typedef std::vector<ThreadPtr> ThreadsPool;
         ThreadsPool m_threadsPool;
 
+        volatile bool m_isRun = true;
         Common::BoolFlagInvertor m_isRunInvertor;
     };
 

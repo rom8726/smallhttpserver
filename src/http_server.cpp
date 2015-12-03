@@ -30,15 +30,15 @@ namespace Network {
 
         } catch (const HttpRequestException &e) {
             if (e.getCode()) {
-                std::stringstream ioStream;
-                ioStream << "<html><body>"
+                std::stringstream ss;
+                ss << "<html><body>"
                 << "<hr/><center><h1>"
                 << e.getCode()
                 << ". "
                 << e.what()
                 << "</center><hr/></h1>"
                 << "</body></html>";
-                evhttp_send_error(request, e.getCode(), ioStream.str().c_str());
+                evhttp_send_error(request, e.getCode(), ss.str().c_str());
             } else {
 
                 evhttp_send_error(request, HTTP_INTERNAL,
@@ -73,6 +73,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
+    //------------------------------SERVER----------------------------------
     //----------------------------------------------------------------------
     HttpServer::HttpServer(const std::string &address, std::uint16_t port,
                            std::uint16_t threadCount, const OnRequestFunc &onRequest,

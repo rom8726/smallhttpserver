@@ -107,10 +107,10 @@ namespace Network {
         if (!query)
             return std::move(params);
 
-        std::stringstream ioStream;
-        ioStream << query;
-        for (std::string s; ioStream;) {
-            std::getline(ioStream, s, '&');
+        std::stringstream ss;
+        ss << query;
+        for (std::string s; ss;) {
+            std::getline(ss, s, '&');
             auto pos = s.find('=');
             if (pos != std::string::npos)
                 params[s.substr(0, pos)] = s.substr(pos + 1);
