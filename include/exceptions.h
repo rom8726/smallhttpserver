@@ -1,50 +1,44 @@
-#ifndef __COMMON_EXCEPTIONS_H__
-#define __COMMON_EXCEPTIONS_H__
+#ifndef __NETWORK_EXCEPTIONS_H__
+#define __NETWORK_EXCEPTIONS_H__
 
 #include <stdexcept>
 
-class HttpRuntimeException : public std::runtime_error
-{
-public:
-    HttpRuntimeException(const std::string& arg)
-            : std::runtime_error(arg)
-    {}
+namespace Network {
 
-    HttpRuntimeException(int _code, const std::string& arg)
-            : std::runtime_error(arg), code(_code)
-    {}
+    class HttpRuntimeException : public std::runtime_error {
+    public:
+        HttpRuntimeException(const std::string &arg)
+                : std::runtime_error(arg) { }
 
-    virtual int getCode() const
-    {
-      return code;
-    }
+        HttpRuntimeException(int _code, const std::string &arg)
+                : std::runtime_error(arg), code(_code) { }
 
-  private:
-    int code = 0;
-};
+        virtual int getCode() const {
+            return code;
+        }
 
-class HttpRequestException : public HttpRuntimeException
-{
-public:
-    HttpRequestException(const std::string& arg)
-            : HttpRuntimeException(arg)
-    {}
+    private:
+        int code = 0;
+    };
 
-    HttpRequestException(int _code, const std::string& arg)
-            : HttpRuntimeException(_code, arg)
-    {}
-};
+    class HttpRequestException : public HttpRuntimeException {
+    public:
+        HttpRequestException(const std::string &arg)
+                : HttpRuntimeException(arg) { }
 
-class HttpServerException : public HttpRuntimeException
-{
-public:
-    HttpServerException(const std::string& arg)
-            : HttpRuntimeException(arg)
-    {}
+        HttpRequestException(int _code, const std::string &arg)
+                : HttpRuntimeException(_code, arg) { }
+    };
 
-    HttpServerException(int _code, const std::string& arg)
-            : HttpRuntimeException(_code, arg)
-    {}
-};
+    class HttpServerException : public HttpRuntimeException {
+    public:
+        HttpServerException(const std::string &arg)
+                : HttpRuntimeException(arg) { }
 
-#endif  // !__COMMON_EXCEPTIONS_H__
+        HttpServerException(int _code, const std::string &arg)
+                : HttpRuntimeException(_code, arg) { }
+    };
+
+}
+
+#endif  // !__NETWORK_EXCEPTIONS_H__

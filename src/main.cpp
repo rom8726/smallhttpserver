@@ -18,27 +18,27 @@ int main() {
     try {
         using namespace Network;
         HttpServer server(srvAddress, srvPort, srvThreadCount,
-                       [&](IHttpRequestPtr req) {
-                           std::string path = req->getPath();
-                           path = rootDir + path + (path == "/" ? defaultPage : std::string());
+                          [&](IHttpRequestPtr req) {
+                              std::string path = req->getPath();
+                              path = rootDir + path + (path == "/" ? defaultPage : std::string());
 
-                           {
-                               std::stringstream ioStream;
-                               ioStream << "path: " << path << std::endl
-                               << Http::Request::Header::Host::Name << ": "
-                               << req->getHeaderAttr(Http::Request::Header::Host::Value) << std::endl
-                               << Http::Request::Header::Referer::Name << ": "
-                               << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
+                              {
+                                  std::stringstream ioStream;
+                                  ioStream << "path: " << path << std::endl
+                                  << Http::Request::Header::Host::Name << ": "
+                                  << req->getHeaderAttr(Http::Request::Header::Host::Value) << std::endl
+                                  << Http::Request::Header::Referer::Name << ": "
+                                  << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
 
-                               std::lock_guard<std::mutex> lock(mtx);
-                               std::cout << ioStream.str() << std::endl;
-                           }
+                                  std::lock_guard<std::mutex> lock(mtx);
+                                  std::cout << ioStream.str() << std::endl;
+                              }
 
-                           req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
-                           req->setResponseAttr(Http::Response::Header::ContentType::Value,
-                                                Http::Content::TypeFromFileName(path));
-                           req->setResponseFile(path);
-                       }
+                              req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
+                              req->setResponseAttr(Http::Response::Header::ContentType::Value,
+                                                   Http::Content::TypeFromFileName(path));
+                              req->setResponseFile(path);
+                          }
         );
 
         std::cin.get();
