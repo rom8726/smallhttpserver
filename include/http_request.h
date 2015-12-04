@@ -24,13 +24,9 @@ namespace Network {
 
     private:
         void initUri() const;
-
         void initInputBuf() const;
-
         void initOutputBuf() const;
-
         void initInputHeaders() const;
-
         void initOutputHeaders() const;
 
         static void freeBuf(const void *data, std::size_t datalen, void *extra) {
@@ -38,25 +34,16 @@ namespace Network {
         }
 
         virtual HttpRequestType getRequestType() const;
-
         virtual const std::string getHeaderAttr(const char *attrName) const;
-
         virtual std::size_t getContentSize() const;
-
         virtual void getContent(void *buf, std::size_t len, bool remove) const;
-
         virtual const std::string getPath() const;
-
         virtual const HttpRequestParams getParams() const;
 
         virtual void setResponseAttr(const std::string &name, const std::string &val);
-
         virtual void setResponseCode(int code);
-
         virtual void setResponseString(const std::string &str);
-
         virtual void setResponseBuf(const void *data, std::size_t bytes);
-
         virtual void setResponseFile(const std::string &fileName);
 
         evhttp_request *m_request;
