@@ -154,7 +154,7 @@ namespace Network {
     void HttpRequest::setResponseString(const std::string &str) {
 
         this->initOutputBuf();
-        if (evbuffer_add_printf(m_outputBuf, str.c_str()) == -1)
+        if (evbuffer_add_printf(m_outputBuf, str.c_str(), "") == -1)
             throw HttpRequestException("Failed to make response.");
     }
 

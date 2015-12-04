@@ -13,7 +13,7 @@ namespace Common {
         NonCopyable() { }
 
     protected:
-        ~NonCopyable() { }
+        virtual ~NonCopyable() { }
     };
 
 }

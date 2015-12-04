@@ -14,6 +14,8 @@ namespace Network {
         HttpRuntimeException(int _code, const std::string &arg)
                 : std::runtime_error(arg), code(_code) { }
 
+        virtual ~HttpRuntimeException() { }
+
         virtual int getCode() const {
             return code;
         }

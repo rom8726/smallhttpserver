@@ -21,7 +21,7 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            std::cout << "Working thread: " << reqPrm->threadId << std::endl;
+            //std::cout << "Working thread: " << reqPrm->threadId << std::endl; // add cout mutex
 
             Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
             reqPrm->func(pRequest);
