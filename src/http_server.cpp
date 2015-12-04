@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <cstring>
+#include <iostream>
 
 
 namespace Network {
@@ -11,6 +12,7 @@ namespace Network {
     struct RawRequestCallbackParams {
         HttpServer::OnRequestFunc func;
         volatile bool *isInProcess = nullptr;
+        unsigned short threadId;
     };
 
     //----------------------------------------------------------------------
@@ -18,6 +20,8 @@ namespace Network {
         try {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
+
+            std::cout << "Working thread: " << reqPrm->threadId << std::endl;
 
             Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
             reqPrm->func(pRequest);
@@ -92,10 +96,14 @@ namespace Network {
 
         auto threadFunc = [&]() {
             try {
+                static unsigned short s_threadId = 0;
+
+                unsigned short thrId = ++s_threadId;
                 volatile bool processRequest = false;
                 RawRequestCallbackParams reqPrm;
                 reqPrm.func = onRequest;
                 reqPrm.isInProcess = &processRequest;
+                reqPrm.threadId = thrId;
 
                 typedef std::unique_ptr<event_base, decltype(&event_base_free)> EventBasePtr;
                 EventBasePtr eventBasePtr(event_base_new(), &event_base_free);

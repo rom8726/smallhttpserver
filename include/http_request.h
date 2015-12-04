@@ -25,6 +25,8 @@ namespace Network {
     private:
         void initUri() const;
 
+        void initInputBuf() const;
+
         void initOutputBuf() const;
 
         void initInputHeaders() const;
