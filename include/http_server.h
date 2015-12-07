@@ -23,8 +23,8 @@ namespace Network {
             MaxHeaderSize = static_cast<std::size_t>(-1), MaxBodySize = MaxHeaderSize
         };
 
-        HttpServer(const std::string &address, std::uint16_t port,
-                   std::uint16_t threadCount, const OnRequestFunc &onRequest,
+        HttpServer(const std::string &address, uint16_t port,
+                   uint16_t threadCount, const OnRequestFunc &onRequest,
                    const MethodPool &allowedMethodsArg = {HttpRequestType::GET},
                    std::size_t maxHeadersSize = MaxHeaderSize,
                    std::size_t maxBodySize = MaxBodySize);

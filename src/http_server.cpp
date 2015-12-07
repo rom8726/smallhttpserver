@@ -1,5 +1,6 @@
 #include "http_server.h"
 #include "http_request.h"
+#include "app_config.h"
 
 #include <sstream>
 #include <cstring>
@@ -21,7 +22,11 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            //std::cout << "Working thread: " << reqPrm->threadId << std::endl; // add cout mutex
+            Common::Config::AppConfig& config = Common::Config::AppConfig::getInstance();
+            if (config.getIsDebug()) {
+                std::lock_guard<std::mutex> lock(config.getStdOutMutex());
+                std::cout << "Working thread: " << reqPrm->threadId << std::endl;
+            }
 
             Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
             reqPrm->func(pRequest);
@@ -79,8 +84,8 @@ namespace Network {
     //----------------------------------------------------------------------
     //------------------------------SERVER----------------------------------
     //----------------------------------------------------------------------
-    HttpServer::HttpServer(const std::string &address, std::uint16_t port,
-                           std::uint16_t threadCount, const OnRequestFunc &onRequest,
+    HttpServer::HttpServer(const std::string &address, uint16_t port,
+                           uint16_t threadCount, const OnRequestFunc &onRequest,
                            const MethodPool &allowedMethodsArg,
                            std::size_t maxHeadersSize, std::size_t maxBodySize)
             : m_isRunInvertor(&m_isRun)
@@ -156,7 +161,7 @@ namespace Network {
 
 
         ThreadsPool threadsPool;
-        for (int i = 0; i < threadCount; ++i) {
+        for (uint16_t i = 0; i < threadCount; ++i) {
             doneInitThread = false;
 
             ThreadPtr threadPtr(new std::thread(threadFunc), threadDeleterFunct);

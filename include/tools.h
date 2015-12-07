@@ -7,8 +7,7 @@ namespace Common {
 
     //----------------------------------------------------------------------
     class BoolFlagInvertor final
-            : private NonCopyable
-    {
+            : private NonCopyable {
     public:
         BoolFlagInvertor(volatile bool *pFlag)
                 : m_pFlag(pFlag) {

@@ -1,35 +1,35 @@
 #include "http_server.h"
 #include "http_headers.h"
 #include "http_content_type.h"
+#include "app_config.h"
 
-#include <iostream>
 #include <sstream>
-#include <mutex>
+#include <iostream>
+
+using namespace Common::Config;
 
 int main() {
 
-    char const srvAddress[] = "127.0.0.1";
-    std::uint16_t srvPort = 5555;
-    std::uint16_t srvThreadCount = 4;
-//    std::string const rootDir = "../test_content";
-    std::string const rootDir = "/home/roman/projects/cpp/learn-network/libevent_test_http_srv/test_content";
-    std::string const defaultPage = "index.html";
-    std::mutex mtx;
+    AppConfig& config = AppConfig::getInstance();
+    if (!config.init()) {
+        std::cerr << "Couldn't init config!" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     try {
         using namespace Network;
-        HttpServer server(srvAddress, srvPort, srvThreadCount,
+        HttpServer server(config.getServerIp(), config.getServerPort(), config.getThreadsCnt(),
 
             [&](IHttpRequestPtr req) {
                 std::string path = req->getPath();
-                path = rootDir + path + (path == "/" ? defaultPage : std::string());
+                path = config.getRootDir() + path + (path == "/" ? config.getDefaultPage() : std::string());
 
                 req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
                 req->setResponseAttr(Http::Response::Header::ContentType::Value,
                                      Http::Content::TypeFromFileName(path));
                 req->setResponseFile(path);
 
-                {
+                if (config.getIsDebug()) {
                     std::stringstream ss;
                     ss << "path: " << path << std::endl
                     << Http::Request::Header::Host::Name << ": "
@@ -37,7 +37,7 @@ int main() {
                     << Http::Request::Header::Referer::Name << ": "
                     << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
 
-                    std::lock_guard<std::mutex> lock(mtx);
+                    std::lock_guard<std::mutex> lock(config.getStdOutMutex());
                     std::cout << ss.str() << std::endl;
                 }
             }

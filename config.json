@@ -1,0 +1,8 @@
+{
+    "server-ip": "127.0.0.1",
+    "server-port": 5555,
+    "threads-count": 4,
+    "default-page": "index.html",
+    "root-dir": "/home/roman/projects/cpp/learn-network/libevent_test_http_srv/test_content",
+    "is-debug": true
+}
