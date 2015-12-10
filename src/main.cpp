@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include <iostream>
+//#include <unistd.h>
 
 using namespace Common::Config;
 
@@ -15,6 +16,11 @@ int main() {
         std::cerr << "Couldn't init config!" << std::endl;
         return EXIT_FAILURE;
     }
+
+//    if (chroot(config.getRootDir().c_str()) == -1) {
+//        std::cerr << "chroot failed!" << std::endl;
+//        return EXIT_FAILURE;
+//    }
 
     try {
         using namespace Network;
@@ -46,7 +52,7 @@ int main() {
         std::cin.get();
     }
     catch (std::exception const &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
     }
 
     return 0;
