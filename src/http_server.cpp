@@ -23,9 +23,9 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            AppConfig& config = AppServicesFactory::getInstance().getConfig();
-            if (config.isDebug()) {
-                std::lock_guard<std::mutex> lock(config.getStdOutMutex());
+            AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
+            if (config->isDebug()) {
+                std::lock_guard<std::mutex> lock(config->getStdOutMutex());
                 std::cout << "Working thread: " << reqPrm->threadId << std::endl;
             }
 

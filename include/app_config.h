@@ -18,6 +18,7 @@ namespace Common {
             virtual ~AppConfig() { }
 
             bool init();
+            static const std::string getName() { return std::string("config"); }
 
             const std::string& getServerIp() const {
                 return m_srvIp;

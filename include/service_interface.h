@@ -1,6 +1,9 @@
 #ifndef __COMMON__SERVICE_INTERFACE_H__
 #define __COMMON__SERVICE_INTERFACE_H__
 
+#include <string>
+
+
 namespace Common {
 
     namespace Services {
@@ -14,6 +17,8 @@ namespace Common {
 
             virtual bool init () = 0;
             virtual bool isInitialized() { return m_isInitialized; }
+
+            static const std::string getName() { return std::string(""); }
 
         protected:
             virtual bool setInitialized(bool initFlag) { m_isInitialized = initFlag; }

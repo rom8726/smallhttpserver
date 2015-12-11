@@ -17,22 +17,22 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    AppConfig& config = services.getConfig();
+    AppConfig* config = services.getService<AppConfig>();
 
     try {
         using namespace Network;
-        HttpServer server(config.getServerIp(), config.getServerPort(), config.getThreadsCnt(),
+        HttpServer server(config->getServerIp(), config->getServerPort(), config->getThreadsCnt(),
 
             [&](IHttpRequestPtr req) {
                 std::string path = req->getPath();
-                path = config.getRootDir() + path + (path == "/" ? config.getDefaultPage() : std::string());
+                path = config->getRootDir() + path + (path == "/" ? config->getDefaultPage() : std::string());
 
                 req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
                 req->setResponseAttr(Http::Response::Header::ContentType::Value,
                                      Http::Content::TypeFromFileName(path));
                 req->setResponseFile(path);
 
-                if (config.isDebug()) {
+                if (config->isDebug()) {
                     std::stringstream ss;
                     ss << "path: " << path << std::endl
                     << Http::Request::Header::Host::Name << ": "
@@ -40,7 +40,7 @@ int main() {
                     << Http::Request::Header::Referer::Name << ": "
                     << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
 
-                    std::lock_guard<std::mutex> lock(config.getStdOutMutex());
+                    std::lock_guard<std::mutex> lock(config->getStdOutMutex());
                     std::cout << ss.str() << std::endl;
                 }
             }

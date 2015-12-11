@@ -5,6 +5,11 @@
 #include "app_config.h"
 #include "cache_service.h"
 
+#include <sstream>
+#include <memory>
+#include <map>
+
+
 namespace Common {
 
     namespace Services {
@@ -17,8 +22,20 @@ namespace Common {
             static AppServicesFactory& getInstance();
             bool initAll();
 
-            AppConfig& getConfig() { return m_appConfig; }
-            CacheService& getCacheService();
+            template <class T>
+            T* getService() {
+                static_assert(std::is_base_of<IService, T>::value, "AppServicesFactory::getService: class T not derived from IService");
+
+                std::string name = T::getName();
+                if (m_services.find(name) != m_services.end()) {
+                    IService* srv = m_services[name].get();
+                    return static_cast<T*>(srv);
+                }
+
+                std::stringstream ss("");
+                ss << "Service " << name << " not found!";
+                throw std::runtime_error(ss.str());
+            }
 
         protected:
             ~AppServicesFactory() { }
@@ -27,8 +44,9 @@ namespace Common {
             static AppServicesFactory *m_pInstance;
             static SingletonDestroyer destroyer;
 
-            AppConfig m_appConfig;
-            CacheService m_cacheService;
+            typedef std::unique_ptr<IService> ServicePtr;
+            typedef std::map<std::string, ServicePtr> ServicesMap;
+            ServicesMap m_services;
         };
 
         //----------------------------------------------------------------------

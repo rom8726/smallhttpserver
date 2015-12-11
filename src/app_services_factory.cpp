@@ -20,35 +20,41 @@ namespace Common {
 
         //----------------------------------------------------------------------
         bool AppServicesFactory::initAll() {
-            if (m_appConfig.init() == false) {
+            // TODO: refactor, make addService method
+
+            ServicePtr iConfig(new AppConfig);
+            ServicePtr iCache(new CacheService);
+
+            AppConfig* config = static_cast<AppConfig*>(iConfig.get());
+            CacheService* cache = static_cast<CacheService*>(iCache.get());
+
+            if (config->init() == false) {
                 std::cerr << "init app config failed!" << std::endl;
                 return false;
             }
 
-            if (m_appConfig.isCachingEnabled()) {
-                if (m_cacheService.init(m_appConfig.getMemcachedServerPort()) == false) {
+            if (config->isCachingEnabled()) {
+                if (cache->init(config->getMemcachedServerPort()) == false) {
                     std::cerr << "init cache service failed!" << std::endl;
                     return false;
                 }
             }
 
+            m_services[AppConfig::getName()] = ServicePtr(std::move(iConfig));
+            m_services[CacheService::getName()] = ServicePtr(std::move(iCache));
+
             return true;
         }
 
-        CacheService& AppServicesFactory::getCacheService() {
-            if (m_appConfig.isCachingEnabled()) {
-                return m_cacheService;
-            }
 
-            throw std::runtime_error("Caching is not enabled in config!");
-        }
-
+        //----------------------------------------------------------------------
         //----------------------------------------------------------------------
         SingletonDestroyer::~SingletonDestroyer() {
             if (m_pInstance)
                 delete m_pInstance;
         }
 
+        //----------------------------------------------------------------------
         void SingletonDestroyer::init(AppServicesFactory *p) {
             m_pInstance = p;
         }

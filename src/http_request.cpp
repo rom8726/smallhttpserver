@@ -178,13 +178,13 @@ namespace Network {
     void HttpRequest::setResponseFile(const std::string &fileName) {
 
         // Try to load file from cache
-        AppConfig& config = AppServicesFactory::getInstance().getConfig();
+        AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
 
-        if (config.isCachingEnabled()) {
-            CacheService &cache = AppServicesFactory::getInstance().getCacheService();
+        if (config->isCachingEnabled()) {
+            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
             char* cachedValue = NULL;
             size_t cachedValLen = 0;
-            if ((cachedValue = cache.load(fileName.c_str(), fileName.size(), &cachedValLen)) != NULL) {
+            if ((cachedValue = cache->load(fileName.c_str(), fileName.size(), &cachedValLen)) != NULL) {
                 this->setResponseBuf(cachedValue, cachedValLen);
                 free(cachedValue);
                 return;
@@ -214,13 +214,12 @@ namespace Network {
 
         *file.get() = -1;
 
-        if (config.isCachingEnabled()) {
+        if (config->isCachingEnabled()) {
             // Store in the cache
-            CacheService &cache = AppServicesFactory::getInstance().getCacheService();
-
+//            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
 //            char* cachedValue = (char *) malloc(length);
 //            this->getContent(cachedValue, length, false);
-//            cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
+//            cache->store(fileName.c_str(), fileName.size(), cachedValue, length);
 //            free(cachedValue);
         }
     }

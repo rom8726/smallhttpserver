@@ -6,6 +6,6 @@
     "root-dir": "/var/www/html",
     "is-debug": false,
 
-    "cache-enable": true,
+    "cache-enable": false,
     "memcached-server-port": 11211
 }
