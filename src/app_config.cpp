@@ -29,7 +29,7 @@ namespace Common {
                 m_srvPort = pt.get<uint16_t>("server-port");
 
                 m_threadsCount = pt.get<uint16_t>("threads-count");
-                if (m_threadsCount > 64) {
+                if (m_threadsCount > THREADS_MAX) {
                     std::stringstream str("");
                     str << "threads-count param is too big(" << THREADS_MAX << " is max)";
                     throw std::runtime_error(str.str());
