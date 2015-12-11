@@ -216,11 +216,11 @@ namespace Network {
 
         if (config->isCachingEnabled()) {
             // Store in the cache
-//            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
-//            char* cachedValue = (char *) malloc(length);
-//            this->getContent(cachedValue, length, false);
-//            cache->store(fileName.c_str(), fileName.size(), cachedValue, length);
-//            free(cachedValue);
+            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
+            char* cachedValue = (char *) malloc(length);
+            this->getContent(cachedValue, length, false); // or true?
+            cache->store(fileName.c_str(), fileName.size(), cachedValue, length);
+            free(cachedValue);
         }
     }
 }

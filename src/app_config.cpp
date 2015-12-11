@@ -33,6 +33,8 @@ namespace Common {
                     std::stringstream str("");
                     str << "threads-count param is too big(" << THREADS_MAX << " is max)";
                     throw std::runtime_error(str.str());
+                } else if (m_threadsCount == 0) {
+                    throw std::runtime_error("threads-count param is 0!");
                 }
 
                 m_rootDir = pt.get<std::string>("root-dir");
