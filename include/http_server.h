@@ -34,7 +34,7 @@ namespace Network {
         void (*threadDeleterFunct)(std::thread *t) = [](std::thread *t) {
             t->join();
             delete t;
-        };;
+        };
         typedef std::unique_ptr<std::thread, decltype(threadDeleterFunct)> ThreadPtr;
         typedef std::vector<ThreadPtr> ThreadsPool;
         ThreadsPool m_threadsPool;

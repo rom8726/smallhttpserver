@@ -1,9 +1,12 @@
 #include "http_request.h"
+#include "app_services_factory.h"
 
 #include <sstream>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
+
+using namespace Common::Services;
 
 
 namespace Network {
@@ -173,8 +176,22 @@ namespace Network {
     //----------------------------------------------------------------------
     void HttpRequest::setResponseFile(const std::string &fileName) {
 
-        this->initOutputBuf();
+        // Try to load file from cache
+        AppConfig& config = AppServicesFactory::getInstance().getConfig();
 
+        if (config.isCachingEnabled()) {
+            CacheService &cache = AppServicesFactory::getInstance().getCacheService();
+            char* cachedValue = NULL;
+            size_t cachedValLen = 0;
+            if ((cachedValue = cache.load(fileName.c_str(), fileName.size(), &cachedValLen)) != NULL) {
+                this->setResponseBuf(cachedValue, cachedValLen);
+                free(cachedValue);
+                return;
+            }
+        }
+
+
+        // File is no in the cache, load from disk and store in the cache
         auto fileDeleterFunct = [](int *f) {
             if (*f != -1) close(*f);
             delete f;
@@ -188,9 +205,23 @@ namespace Network {
         ev_off_t length = lseek(*file, 0, SEEK_END);
         if (length == -1 || lseek(*file, 0, SEEK_SET) == -1)
             throw HttpRequestException("Failed to calc file size.");
+
+        this->initOutputBuf();
+        // Send file
         if (evbuffer_add_file(m_outputBuf, *file, 0, length) == -1)
             throw HttpRequestException("Failed to make response.");
 
         *file.get() = -1;
+
+        if (config.isCachingEnabled()) {
+            // Store in the cache
+            CacheService &cache = AppServicesFactory::getInstance().getCacheService();
+
+            char* cachedValue = (char *) malloc(length);
+            if (evbuffer_copyout(m_outputBuf, cachedValue, length) != -1) {
+                cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
+                free(cachedValue);
+            }
+        }
     }
 }

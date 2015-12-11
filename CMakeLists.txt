@@ -10,6 +10,8 @@ set(SOURCE_FILES
         src/http_server.cpp
         src/http_request.cpp
         src/app_config.cpp
+        src/app_services_factory.cpp
+        src/cache_service.cpp
 )
 
 
@@ -20,5 +22,5 @@ find_package(Boost 1.36.0 COMPONENTS )
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     add_executable(chudoserver ${SOURCE_FILES})
-    target_link_libraries(chudoserver LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread)
+    target_link_libraries(chudoserver LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread -lmemcached)
 endif()

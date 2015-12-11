@@ -2,21 +2,21 @@
 #define __COMMON__APP_CONFIG_H__
 
 #include "tools.h"
+#include "service_interface.h"
 
 #include <string>
 #include <mutex>
 
 namespace Common {
 
-    namespace Config {
+    namespace Services {
 
         //----------------------------------------------------------------------
-        class SingletonDestroyer;
-
-        class AppConfig final : public NonCopyable
+        class AppConfig : public IService
         {
         public:
-            static AppConfig& getInstance();
+            virtual ~AppConfig() { }
+
             bool init();
 
             const std::string& getServerIp() const {
@@ -39,40 +39,37 @@ namespace Common {
                 return m_defaultPage;
             }
 
-            bool getIsDebug() const {
+            bool isDebug() const {
                 return m_isDebug;
+            }
+
+            bool isCachingEnabled() const {
+                return m_isCachingEnabled;
+            }
+
+            uint16_t getMemcachedServerPort() const {
+                return m_memcachedSrvPort;
             }
 
             std::mutex& getStdOutMutex() {
                 return m_stdOutMutex;
             }
 
-        protected:
-            ~AppConfig() { }
-            friend class SingletonDestroyer;
-
         private:
-            static AppConfig *m_pInstance;
-            static SingletonDestroyer destroyer;
-
             const uint16_t THREADS_MAX = 64;
 
             std::string m_srvIp;
-            uint16_t m_srvPort;
-            uint16_t m_threadsCount;
             std::string m_rootDir;
             std::string m_defaultPage;
-            bool m_isDebug;
-            std::mutex m_stdOutMutex;
-        };
 
-        //----------------------------------------------------------------------
-        class SingletonDestroyer {
-        private:
-            AppConfig *m_pInstance = nullptr;
-        public:
-            virtual ~SingletonDestroyer();
-            void init(AppConfig *p);
+            uint16_t m_srvPort;
+            uint16_t m_memcachedSrvPort;
+            uint16_t m_threadsCount;
+
+            bool m_isDebug;
+            bool m_isCachingEnabled;
+
+            std::mutex m_stdOutMutex;
         };
     }
 }

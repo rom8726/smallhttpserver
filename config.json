@@ -4,5 +4,8 @@
     "threads-count": 4,
     "default-page": "index.html",
     "root-dir": "/var/www/html",
-    "is-debug": true
+    "is-debug": false,
+
+    "cache-enable": true,
+    "memcached-server-port": 11211
 }

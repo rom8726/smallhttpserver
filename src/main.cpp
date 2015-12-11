@@ -1,26 +1,23 @@
 #include "http_server.h"
 #include "http_headers.h"
 #include "http_content_type.h"
-#include "app_config.h"
+#include "app_services_factory.h"
 
 #include <sstream>
 #include <iostream>
 //#include <unistd.h>
 
-using namespace Common::Config;
+using namespace Common::Services;
 
 int main() {
 
-    AppConfig& config = AppConfig::getInstance();
-    if (!config.init()) {
-        std::cerr << "Couldn't init config!" << std::endl;
+    AppServicesFactory& services = AppServicesFactory::getInstance();
+    if (!services.initAll()) {
+        std::cerr << "Couldn't init app services!" << std::endl;
         return EXIT_FAILURE;
     }
 
-//    if (chroot(config.getRootDir().c_str()) == -1) {
-//        std::cerr << "chroot failed!" << std::endl;
-//        return EXIT_FAILURE;
-//    }
+    AppConfig& config = services.getConfig();
 
     try {
         using namespace Network;
@@ -35,7 +32,7 @@ int main() {
                                      Http::Content::TypeFromFileName(path));
                 req->setResponseFile(path);
 
-                if (config.getIsDebug()) {
+                if (config.isDebug()) {
                     std::stringstream ss;
                     ss << "path: " << path << std::endl
                     << Http::Request::Header::Host::Name << ": "

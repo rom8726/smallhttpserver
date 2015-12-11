@@ -6,22 +6,12 @@
 
 namespace Common {
 
-    namespace Config {
+    namespace Services {
 
         //----------------------------------------------------------------------
-        AppConfig *AppConfig::m_pInstance = nullptr;
-        SingletonDestroyer AppConfig::destroyer;
-
-        //----------------------------------------------------------------------
-        AppConfig &AppConfig::getInstance() {
-            if (!m_pInstance) {
-                m_pInstance = new AppConfig();
-                destroyer.init(m_pInstance);
-            }
-            return *m_pInstance;
-        }
-
         bool AppConfig::init() {
+
+            if (this->isInitialized()) return true;
 
             try {
 
@@ -60,24 +50,24 @@ namespace Common {
 
                 m_isDebug = pt.get<bool>("is-debug");
 
+                m_isCachingEnabled = pt.get<bool>("cache-enable");
+                if (m_isCachingEnabled) {
+                    m_memcachedSrvPort = pt.get<uint16_t>("memcached-server-port");
+                    if (m_memcachedSrvPort <= 1024) {
+                        throw std::runtime_error("memcached server port must be > 1024!");
+                    }
+                } else {
+                    m_memcachedSrvPort = 0;
+                }
+
+                this->setInitialized(true);
+
             } catch (const std::exception &ex) {
                 std::cerr << ex.what() << std::endl;
-                return false;
             } catch (...) {
-                return false;
             }
 
-            return true;
-        }
-
-        //----------------------------------------------------------------------
-        SingletonDestroyer::~SingletonDestroyer() {
-            if (m_pInstance)
-                delete m_pInstance;
-        }
-
-        void SingletonDestroyer::init(AppConfig *p) {
-            m_pInstance = p;
+            return isInitialized();
         }
     }
 }

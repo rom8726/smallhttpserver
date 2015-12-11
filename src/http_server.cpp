@@ -1,11 +1,12 @@
 #include "http_server.h"
 #include "http_request.h"
-#include "app_config.h"
+#include "app_services_factory.h"
 
 #include <sstream>
 #include <cstring>
 #include <iostream>
 
+using namespace Common::Services;
 
 namespace Network {
 
@@ -22,8 +23,8 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            Common::Config::AppConfig& config = Common::Config::AppConfig::getInstance();
-            if (config.getIsDebug()) {
+            AppConfig& config = AppServicesFactory::getInstance().getConfig();
+            if (config.isDebug()) {
                 std::lock_guard<std::mutex> lock(config.getStdOutMutex());
                 std::cout << "Working thread: " << reqPrm->threadId << std::endl;
             }
