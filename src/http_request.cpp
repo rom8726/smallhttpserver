@@ -97,8 +97,8 @@ namespace Network {
     //----------------------------------------------------------------------
     void HttpRequest::getContent(void *buf, std::size_t len, bool remove) const {
 
-        if (len > this->getContentSize())
-            throw HttpRequestException("Required length of data buffer more than exists.");
+        //if (len > this->getContentSize())
+        //    throw HttpRequestException("Required length of data buffer more than exists.");
 
         if (remove) {
             if (evbuffer_remove(m_inputBuf, buf, len) == -1)
@@ -144,7 +144,8 @@ namespace Network {
     void HttpRequest::setResponseAttr(const std::string &name, const std::string &val) {
 
         this->initOutputHeaders();
-        if (evhttp_add_header(m_outputHeaders, name.c_str(), val.c_str()) == -1)
+//        evhttp_remove_header(m_request->output_headers, name.c_str());
+        if (evhttp_add_header(m_request->output_headers, name.c_str(), val.c_str()) == -1)
             throw HttpRequestException("Failed to set response header attribute.");
     }
 
@@ -217,10 +218,10 @@ namespace Network {
             // Store in the cache
             CacheService &cache = AppServicesFactory::getInstance().getCacheService();
 
-            char* cachedValue = (char *) malloc(length);
-            this->getContent(cachedValue, length, true);
-            cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
-            free(cachedValue);
+//            char* cachedValue = (char *) malloc(length);
+//            this->getContent(cachedValue, length, false);
+//            cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
+//            free(cachedValue);
         }
     }
 }
