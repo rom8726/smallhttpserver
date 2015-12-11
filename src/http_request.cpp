@@ -218,10 +218,9 @@ namespace Network {
             CacheService &cache = AppServicesFactory::getInstance().getCacheService();
 
             char* cachedValue = (char *) malloc(length);
-            if (evbuffer_copyout(m_outputBuf, cachedValue, length) != -1) {
-                cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
-                free(cachedValue);
-            }
+            this->getContent(cachedValue, length, true);
+            cache.store(fileName.c_str(), fileName.size(), cachedValue, length);
+            free(cachedValue);
         }
     }
 }
