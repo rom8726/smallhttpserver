@@ -88,26 +88,53 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    std::size_t HttpRequest::getContentSize() const {
+    std::size_t HttpRequest::getInputContentSize() const {
 
         this->initInputBuf();
         return evbuffer_get_length(m_inputBuf);
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::getContent(void *buf, std::size_t len, bool remove) const {
+    std::size_t HttpRequest::getOutputContentSize() const {
 
-        //if (len > this->getContentSize())
-        //    throw HttpRequestException("Required length of data buffer more than exists.");
+        this->initOutputBuf();
+        return evbuffer_get_length(m_outputBuf);
+    }
+
+    //----------------------------------------------------------------------
+    bool HttpRequest::getInputContent(void *buf, std::size_t len, bool remove) const {
+
+        if (len > this->getInputContentSize())
+            throw HttpRequestException("Required length of data buffer more than exists.");
 
         if (remove) {
-            if (evbuffer_remove(m_inputBuf, buf, len) == -1)
-                throw HttpRequestException("Failed to get input data.");
-            return;
+//            if (evbuffer_remove(m_inputBuf, buf, len) == -1)
+//                throw HttpRequestException("Failed to get input data.");
+//            return;
+            return evbuffer_remove(m_inputBuf, buf, len);
         }
 
-        if (evbuffer_copyout(m_inputBuf, buf, len) == -1)
-            throw HttpRequestException("Failed to get input data.");
+//        if (evbuffer_copyout(m_inputBuf, buf, len) == -1)
+//            throw HttpRequestException("Failed to get input data.");
+        return evbuffer_copyout(m_inputBuf, buf, len);
+    }
+
+    //----------------------------------------------------------------------
+    bool HttpRequest::getOutputContent(void *buf, std::size_t len, bool remove) const {
+
+        if (len > this->getOutputContentSize())
+            throw HttpRequestException("Required length of data buffer more than exists.");
+
+        if (remove) {
+//            if (evbuffer_remove(m_outputBuf, buf, len) == -1)
+//                throw HttpRequestException("Failed to get output data.");
+//            return;
+            return evbuffer_remove(m_outputBuf, buf, len);
+        }
+
+//        if (evbuffer_copyout(m_outputBuf, buf, len) == -1)
+//            throw HttpRequestException("Failed to get output data.");
+        return evbuffer_copyout(m_outputBuf, buf, len);
     }
 
     //----------------------------------------------------------------------
@@ -218,8 +245,9 @@ namespace Network {
             // Store in the cache
             CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
             char* cachedValue = (char *) malloc(length);
-            this->getContent(cachedValue, length, false); // or true?
-            cache->store(fileName.c_str(), fileName.size(), cachedValue, length);
+            if(this->getOutputContent(cachedValue, length, false) != -1) {
+                cache->store(fileName.c_str(), fileName.size(), cachedValue, length);
+            }
             free(cachedValue);
         }
     }
