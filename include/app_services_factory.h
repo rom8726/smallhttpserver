@@ -29,12 +29,13 @@ namespace Common {
                 const std::string name = T::getName();
                 if (m_services.find(name) != m_services.end()) {
                     IService* srv = m_services[name].get();
+                    if (!srv->isInitialized()) {
+                        throw std::runtime_error(std::string("Service ") + name + std::string(" is not initialized!"));
+                    }
                     return static_cast<T*>(srv);
                 }
 
-                std::stringstream ss("");
-                ss << "Service " << name << " not found!";
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(std::string("Service ") + name + std::string(" not found!"));
             }
 
         protected:
