@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(chudoserver)
+project(smallhttpserver)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -21,6 +21,6 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 find_package(Boost 1.36.0 COMPONENTS )
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    add_executable(chudoserver ${SOURCE_FILES})
-    target_link_libraries(chudoserver LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread -lmemcached)
+    add_executable(smallhttpserver ${SOURCE_FILES})
+    target_link_libraries(smallhttpserver LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread -lmemcached)
 endif()
