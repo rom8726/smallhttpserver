@@ -3,9 +3,8 @@
 #include "http_content_type.h"
 #include "app_services_factory.h"
 
-#include <sstream>
 #include <iostream>
-//#include <unistd.h>
+#include <unistd.h>
 
 using namespace Common::Services;
 
@@ -47,6 +46,7 @@ int main() {
         );
 
         std::cin.get();
+        usleep(1000);
     }
     catch (std::exception const &e) {
         std::cerr << e.what() << std::endl;
