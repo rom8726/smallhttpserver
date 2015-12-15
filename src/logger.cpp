@@ -1,7 +1,9 @@
 #include "logger.h"
 
-Logger::Logger() {
-}
+namespace Common {
+    Logger::Logger() {
+    }
 
-Logger::~Logger() {
+    Logger::~Logger() {
+    }
 }

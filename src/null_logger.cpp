@@ -1,7 +1,9 @@
 #include "null_logger.h"
 
-NullLogger::NullLogger() {
-}
+namespace Common {
+    NullLogger::NullLogger() {
+    }
 
-NullLogger::~NullLogger() {
+    NullLogger::~NullLogger() {
+    }
 }

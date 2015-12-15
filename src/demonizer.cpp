@@ -98,7 +98,6 @@ namespace System {
 
         m_sSysLogger = new SyslogLogger();
         m_sSysLogger->setName(logger->getName());
-
         m_sSysLogger->log("Configuring daemon...");
 
         pid_t pid;
