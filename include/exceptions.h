@@ -46,4 +46,27 @@ namespace Network {
 
 }
 
+//----------------------------------------------------------------------
+namespace System {
+
+    //----------------------------------------------------------------------
+    class DemonizerException : public std::runtime_error {
+    public:
+        DemonizerException(const std::string &arg)
+                : std::runtime_error(arg) { }
+
+        DemonizerException(int _code, const std::string &arg)
+                : std::runtime_error(arg), code(_code) { }
+
+        virtual ~DemonizerException() { }
+
+        virtual int getCode() const {
+            return code;
+        }
+
+    private:
+        int code = 0;
+    };
+}
+
 #endif  // !__NETWORK_EXCEPTIONS_H__

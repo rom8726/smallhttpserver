@@ -6,9 +6,14 @@
       <sourceFolder url="file://$MODULE_DIR$/src/app_config.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/app_services_factory.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/cache_service.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/console_logger.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/demonizer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/http_request.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/http_server.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/logger.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/null_logger.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/syslog_logger.cpp" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

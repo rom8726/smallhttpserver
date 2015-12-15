@@ -12,6 +12,11 @@ set(SOURCE_FILES
         src/app_config.cpp
         src/app_services_factory.cpp
         src/cache_service.cpp
+        src/logger.cpp
+        src/console_logger.cpp
+        src/syslog_logger.cpp
+        src/null_logger.cpp
+        src/demonizer.cpp
 )
 
 
