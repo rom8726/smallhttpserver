@@ -3,22 +3,21 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     ConsoleLogger::ConsoleLogger() {
     }
 
+    //----------------------------------------------------------------------
     ConsoleLogger::~ConsoleLogger() {
     }
 
-    /*
-    * log() realization with cout
-    */
-    void ConsoleLogger::log(std::string logMessage) {
-
+    //----------------------------------------------------------------------
+    void ConsoleLogger::log(const std::string& logMessage) const {
         std::cout << logMessage << std::endl;
-
     }
 
-    void ConsoleLogger::log_n(char c) {
+    //----------------------------------------------------------------------
+    void ConsoleLogger::log_n(char c) const {
         std::cout << c;
     }
 }

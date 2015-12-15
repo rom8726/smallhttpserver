@@ -5,12 +5,13 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     class NullLogger : public Logger {
     public:
         NullLogger();
         virtual ~NullLogger();
 
-        void log(std::string logMessage) { (void) logMessage; };
+        void log(const std::string& logMessage) const { (void) logMessage; };
     };
 
 }

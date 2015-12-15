@@ -9,6 +9,7 @@
 #include <vector>
 #include <thread>
 #include <string>
+#include <atomic>
 
 namespace Network {
 
@@ -29,6 +30,9 @@ namespace Network {
                    std::size_t maxHeadersSize = MaxHeaderSize,
                    std::size_t maxBodySize = MaxBodySize);
 
+        void stop();
+        bool isRun() const;
+
     private:
 
         void (*threadDeleterFunct)(std::thread *t) = [](std::thread *t) {
@@ -41,6 +45,8 @@ namespace Network {
 
         volatile bool m_isRun = true;
         Common::BoolFlagInvertor m_isRunInvertor;
+
+        std::atomic_int m_workingThreadsCnt;
     };
 
 }

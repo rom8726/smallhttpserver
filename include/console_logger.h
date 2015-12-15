@@ -1,7 +1,9 @@
-#ifndef __COMMON__LOGGER_H__
-#define __COMMON__LOGGER_H__
+#ifndef __COMMON__CONSOLE_LOGGER_H__
+#define __COMMON__CONSOLE_LOGGER_H__
 
 #include "logger.h"
+
+#include <string>
 
 namespace Common {
 
@@ -10,10 +12,10 @@ namespace Common {
         ConsoleLogger();
         virtual ~ConsoleLogger();
 
-        void log(std::string logMessage);
+        void log(const std::string& logMessage) const;
 
-        void log_n(char c);
+        void log_n(char c) const;
     };
 
 }
-#endif /* __COMMON__LOGGER_H__ */
+#endif /* __COMMON__CONSOLE_LOGGER_H__ */

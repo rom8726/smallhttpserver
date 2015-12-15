@@ -22,6 +22,8 @@ namespace Common {
         bool AppServicesFactory::initAll() {
             // TODO: refactor, make addService method
 
+            m_services.clear();
+
             ServicePtr iConfig(new AppConfig);
             ServicePtr iCache(new CacheService);
 

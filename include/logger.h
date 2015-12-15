@@ -6,16 +6,17 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     class Logger {
     public:
         Logger();
         virtual ~Logger();
 
-        virtual void log(std::string logMessage) = 0;
+        virtual void log(const std::string& logMessage) const = 0;
 
-        void setName(std::string name) { this->name = name; }
+        void setName(const std::string& name) { this->name = name; }
 
-        std::string &getName() { return name; }
+        const std::string& getName() const { return name; }
 
         static std::string itos(int data) {
             char buf[10];

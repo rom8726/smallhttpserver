@@ -2,11 +2,18 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <console_logger.h>
 
 
 namespace Common {
 
     namespace Services {
+
+        //----------------------------------------------------------------------
+        AppConfig::AppConfig()
+            : m_isDaemon(false), m_isLogging(false), m_isCachingEnabled(false)
+        {
+        }
 
         //----------------------------------------------------------------------
         bool AppConfig::init() {
@@ -52,7 +59,8 @@ namespace Common {
                         throw std::runtime_error("default page is not exist!");
                     }
 
-                    m_isDebug = pt.get<bool>("is-debug");
+                    m_isLogging = pt.get<bool>("logging-enable");
+                    m_logger.reset(new ConsoleLogger);
 
                     m_isCachingEnabled = pt.get<bool>("cache-enable");
                     if (m_isCachingEnabled) {

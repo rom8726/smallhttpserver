@@ -1,17 +1,22 @@
 #ifndef __COMMON__DEMONIZER_H__
 #define __COMMON__DEMONIZER_H__
 
-#include "exceptions.h
-#include "logger.h"
+#include "exceptions.h"
 
 #include <signal.h>
 
 namespace System {
 
+    //----------------------------------------------------------------------
     class Demonizer {
-
+    public:
         Demonizer();
+
         virtual ~Demonizer();
+
+        void setName(const std::string &name) { this->name = name; }
+
+        std::string getName() { return name; }
 
         void setup() throw(DemonizerException);
 
@@ -29,7 +34,6 @@ namespace System {
 
         //private:
         static void signal_handler(int sig, siginfo_t *si, void *ptr);
-        //static void  signal_handler(int sig) ;
 
         int workProc();
 
@@ -38,8 +42,8 @@ namespace System {
         static int (*m_sStopFunc)(void);
 
         static int (*m_sRereadCfgFun)(void);
-
-        static Common::Logger *m_sSysLogger;
+    protected:
+        std::string name;
     };
 
 }

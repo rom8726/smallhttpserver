@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cstring>
 #include <iostream>
+#include <unistd.h>
 
 using namespace Common::Services;
 
@@ -23,11 +24,10 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
-            if (config->isDebug()) {
-                std::lock_guard<std::mutex> lock(config->getStdOutMutex());
-                std::cout << "Working thread: " << reqPrm->threadId << std::endl;
-            }
+            //AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
+            //if (config->isLogging()) {
+            //    config->getLogger()->log("Working thread: " + std::to_string(reqPrm->threadId));
+            //}
 
 //            Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
             reqPrm->func(pRequest);
@@ -92,6 +92,8 @@ namespace Network {
             : m_isRunInvertor(&m_isRun)
     {
 
+        m_workingThreadsCnt = 0;
+
         int allowedMethods = -1;
         for (const auto i : allowedMethodsArg)
             allowedMethods |= httpRequestTypeToAllowedMethod(i);
@@ -101,15 +103,17 @@ namespace Network {
         evutil_socket_t sock = -1;
 
         auto threadFunc = [&]() {
-            try {
-                static unsigned short s_threadId = 0;
 
-                unsigned short thrId = ++s_threadId;
+            static unsigned short s_threadId = 0;
+            unsigned short thrId = ++s_threadId;
+
+            try {
                 volatile bool processRequest = false;
                 RawRequestCallbackParams reqPrm;
                 reqPrm.func = onRequest;
                 reqPrm.isInProcess = &processRequest;
                 reqPrm.threadId = thrId;
+                ++m_workingThreadsCnt;
 
                 typedef std::unique_ptr<event_base, decltype(&event_base_free)> EventBasePtr;
                 EventBasePtr eventBasePtr(event_base_new(), &event_base_free);
@@ -158,6 +162,10 @@ namespace Network {
             catch (...) {
                 except = std::current_exception();
             }
+
+            AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
+            config->getLogger()->log("Stopping thread #" + std::to_string(thrId));
+            --m_workingThreadsCnt;
         };
 
 
@@ -182,4 +190,18 @@ namespace Network {
         m_threadsPool = std::move(threadsPool);
     }
 
+    //----------------------------------------------------------------------
+    void HttpServer::stop() {
+        m_isRun = false;
+        sleep(2);
+    }
+
+    //----------------------------------------------------------------------
+    bool HttpServer::isRun() const {
+        if (m_workingThreadsCnt > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }

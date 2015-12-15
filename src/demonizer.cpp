@@ -1,6 +1,7 @@
 #include "demonizer.h"
 #include "syslog_logger.h"
 #include "exceptions.h"
+#include "tools.h"
 
 #include <unistd.h>
 //#include <pthread.h>
@@ -22,20 +23,21 @@ using namespace Common;
 
 namespace System {
 
+    //----------------------------------------------------------------------
     int (*Demonizer::m_sStartFunc)() = NULL;
-
     int (*Demonizer::m_sStopFunc)() = NULL;
-
     int (*Demonizer::m_sRereadCfgFun)() = NULL;
-    
-    Logger *Demonizer::m_sSysLogger = NULL;
+    static SyslogLogger sysLogger;
 
+    //----------------------------------------------------------------------
     Demonizer::Demonizer() {
     }
 
+    //----------------------------------------------------------------------
     Demonizer::~Demonizer() {
     }
 
+    //----------------------------------------------------------------------
     void Demonizer::signal_handler(int sig, siginfo_t *si, void *ptr) {
 
         void *errorAddr;
@@ -45,10 +47,10 @@ namespace System {
         char **messages;
         (void) si;
 
-        m_sSysLogger->log("Caught signal:" + string(strsignal(sig)));
+        sysLogger.log("Caught signal:" + string(strsignal(sig)));
 
         if (sig == SIGUSR1) {
-            m_sSysLogger->log("Received user signal.");
+            sysLogger.log("Received user signal.");
             if (m_sRereadCfgFun != NULL)
                 (*m_sRereadCfgFun)();
 
@@ -57,32 +59,32 @@ namespace System {
 
 
         if (sig == SIGTERM) {
-            m_sSysLogger->log("Received sigterm signal. Stopping...");
+            sysLogger.log("Received sigterm signal. Stopping...");
             if (m_sStopFunc != NULL)
                 (*m_sStopFunc)();
             exit(CHILD_NEED_TERMINATE);
         }
 
         //found error address
-        #if __WORDSIZE == 64
+#if __WORDSIZE == 64
         errorAddr = (void *) ((ucontext_t *) ptr)->uc_mcontext.gregs[REG_RIP];
-        #else
+#else
         errorAddr = (void*) ((ucontext_t*) ptr)->uc_mcontext.gregs[REG_EIP];
-        #endif
+#endif
         //backtrace
         traceSize = backtrace(trace, 16);
         trace[1] = errorAddr;
         //know more
         messages = backtrace_symbols(trace, traceSize);
         if (messages) {
-            m_sSysLogger->log("== Backtrace ==");
+            sysLogger.log("== Backtrace ==");
             for (x = 1; x < traceSize; x++) {
-                m_sSysLogger->log(messages[x]);
+                sysLogger.log(messages[x]);
             }
-            m_sSysLogger->log("== End Backtrace ==");
+            sysLogger.log("== End Backtrace ==");
             free(messages);
         }
-        m_sSysLogger->log("Stopped");
+        sysLogger.log("Stopped");
 
         if (m_sStopFunc != NULL)
             (*m_sStopFunc)();
@@ -91,14 +93,12 @@ namespace System {
     }
 
 
-    /*
-     * Demonize the current process.
-     */
+    //----------------------------------------------------------------------
     void Demonizer::setup() throw(DemonizerException) {
 
-        m_sSysLogger = new SyslogLogger();
-        m_sSysLogger->setName(logger->getName());
-        m_sSysLogger->log("Configuring daemon...");
+        sysLogger.setName(this->getName());
+        sysLogger.log("Configuring daemon...");
+        sysLogger.log(std::string("current PID = ") + Logger::itos(getpid()));
 
         pid_t pid;
         struct rlimit limits;
@@ -106,22 +106,21 @@ namespace System {
 
         umask(0);
 
-        if (getrlimit(RLIMIT_NOFILE, &limits) < 0) {
-            throw DemonizerException("can`t get RLIMIT_NOFILE");
-        }
+//        if (getrlimit(RLIMIT_NOFILE, &limits) < 0) {
+//            throw DemonizerException("can`t get RLIMIT_NOFILE");
+//        }
 
         //fork process and disconnect it from parent
         if ((pid = fork()) < 0) {
             throw DemonizerException("fork error");
-
         } else if (0 != pid) {
+            sysLogger.log(std::string("PID1 = ") + Logger::itos(pid));
             exit(0);//stop parent process
         }
 
         //create seance
         if ((setsid()) == (pid_t) -1) {
             throw DemonizerException("setsig error");
-
         }
         //ignoring sighup
         sa.sa_handler = SIG_IGN;
@@ -134,8 +133,8 @@ namespace System {
         //fork again
         if ((pid = fork()) < 0) {
             throw DemonizerException("fork error");
-
         } else if (0 != pid) {
+            sysLogger.log(std::string("PID2 = ") + Logger::itos(pid));
             exit(0);
         }
 
@@ -143,85 +142,92 @@ namespace System {
         if (chdir("/") < 0) {
             throw DemonizerException("can`t chdir() to /");
         }
+
         //close all resources
         if (limits.rlim_max == RLIM_INFINITY)
             limits.rlim_max = 1024;
 
-        u_int32_t idx;
-        for (idx = 0; idx < limits.rlim_max; ++idx) {
-            close(idx);
-        }
+//        u_int32_t idx;
+//        for (idx = 0; idx < limits.rlim_max; ++idx) {
+//            close(idx);
+//        }
+
         //reopen stdout to /dev/null and another strems to it
         int fd0 = open("/dev/null", O_RDWR);
         int fd1 = dup(0);
         int fd2 = dup(0);
 
         if (fd0 != 0 || fd1 != 1 || fd2 != 2) {
-            throw DemonizerException("bad file descriptors");
+            /*
+            throw DemonizerException("bad file descriptors: " +
+                                             Logger::itos(fd0) + " " +
+                                             Logger::itos(fd1) + " " +
+                                             Logger::itos(fd2));
+                                             */
+            close(STDIN_FILENO);
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
         }
 
-        m_sSysLogger->log("Prepare to be daemon ok");
+        sysLogger.log("Prepare to be daemon ok");
 
         //check the running -  and save new! pid
-        if (PlatformFactory::getInstance()->checkRunningAndSavePID(getName())) {
-            m_sSysLogger->log("Daemon is already running");
+        if (SystemTools::checkRunningAndSavePID(this->getName())) {
+            sysLogger.log("Daemon is already running");
             throw DemonizerException("Error. Daemon is already running");
         }
 
         //set handler to signal
         //signal(SIGTERM, signal_handler);
-        m_sSysLogger->log("Daemonize done");
-
+        sysLogger.log("Daemonize done");
     }
 
-   /*
-    * stops the daemon service
-    */
+    //----------------------------------------------------------------------
     void Demonizer::stop() throw(DemonizerException) {
 
         //get pid from pid file of running daemon
-        int pid = PlatformFactory::getInstance()->findPID(this->getName());
+        int pid = SystemTools::findPID(this->getName());
         //check running
         if (pid == -1) {
-            m_sSysLogger->log("Error. Daemon is not running");
+            sysLogger.log("Error. Daemon is not running");
             throw DemonizerException("Daemon is not running");
-
         } else {
             //kill it
-            PlatformFactory::getInstance()->kill(pid);
+            SystemTools::kill(pid);
         }
     }
 
+    //----------------------------------------------------------------------
     void Demonizer::stopWorker() throw(DemonizerException) {
 
         //get pid from pid file of running daemon
-        int pid = PlatformFactory::getInstance()->findPID(this->getName() + "_worker");
+        int pid = SystemTools::findPID(this->getName() + "_worker");
         //check running
         if (pid == -1) {
-            m_sSysLogger->log("Error. Worker daemon is not running");
+            sysLogger.log("Error. Worker daemon is not running");
             throw DemonizerException("Worker daemon is not running");
         } else {
             //kill it
-            PlatformFactory::getInstance()->kill(pid);
+            SystemTools::kill(pid);
         }
     }
 
-
+    //----------------------------------------------------------------------
     void Demonizer::sendUserSignalToWorker() throw(DemonizerException) {
 
         //get pid from pid file of running daemon
-        int pid = PlatformFactory::getInstance()->findPID(this->getName() + "_worker");
+        int pid = SystemTools::findPID(this->getName() + "_worker");
         //check running
         if (pid == -1) {
-            m_sSysLogger->log("Error. Worker daemon is not running");
+            sysLogger.log("Error. Worker daemon is not running");
             throw DemonizerException("Worker daemon is not running");
-
         } else {
             //kill it
-            PlatformFactory::getInstance()->killWithSignal(pid, SIGUSR1);
+            SystemTools::killWithSignal(pid, SIGUSR1);
         }
     }
 
+    //----------------------------------------------------------------------
     int Demonizer::workProc() {
 
         struct sigaction sigact;
@@ -247,16 +253,16 @@ namespace System {
         //sigprocmask(SIG_BLOCK, &sigset, NULL);
 
         struct rlimit lim;
-        #define FD_LIMIT 1024*10
+#define FD_LIMIT 1024*10
 
         lim.rlim_cur = FD_LIMIT;
         lim.rlim_max = FD_LIMIT;
         setrlimit(RLIMIT_NOFILE, &lim);
 
-        m_sSysLogger->log("Starting work process...");
+        sysLogger.log("Starting work process...");
         //start the threads
         status = (*m_sStartFunc)();
-        m_sSysLogger->log("Start work process done");
+        sysLogger.log("Start work process done");
 
         if (!status) {
             for (; ;) {
@@ -274,13 +280,14 @@ namespace System {
             //close all
             //	SenderDaemonStopWork() ;
         } else {
-            m_sSysLogger->log("Create work thread failed");
+            sysLogger.log("Create work thread failed");
         }
 
-        m_sSysLogger->log("[DAEMON] Stopped");
+        sysLogger.log("[DAEMON] Stopped");
         return CHILD_NEED_TERMINATE;
     }
 
+    //----------------------------------------------------------------------
     void Demonizer::startWithMonitoring(int(*startFunc)(void),
                                         int(*stopFunc)(void), int(*rereadCfgFun)(void)) {
 
@@ -301,66 +308,59 @@ namespace System {
         sigaddset(&sigset, SIGCHLD);
         sigprocmask(SIG_BLOCK, &sigset, NULL);
 
-        for (; ;) {
+        /*for (; ;) */{
             if (need_start) {
                 pid = fork();
                 if (pid != 0) {
-                    m_sSysLogger->log("Fork with pid=" + Logger::itos(pid));
+                    sysLogger.log("Fork with pid=" + Logger::itos(pid));
 
-                    if (PlatformFactory::getInstance()->checkRunningAndSavePID(
-                            getName() + "_worker", pid)) {
-                        m_sSysLogger->log("worker daemon is already running");
+                    if (SystemTools::checkRunningAndSavePID(getName() + "_worker", pid)) {
+                        sysLogger.log("worker daemon is already running");
                         exit(CHILD_NEED_TERMINATE);
-
                     }
                 }
-
             }
             need_start = 1;
             if (pid == -1) {
-                m_sSysLogger->log("Monitor: fork failed with " + string(strerror(errno)));
+                sysLogger.log("Monitor: fork failed with " + string(strerror(errno)));
             } else if (!pid) {
                 //we are child
                 status = this->workProc();
                 exit(status);
             } else {// parent
-                
+
                 sigwaitinfo(&sigset, &siginfo);
-                m_sSysLogger->log("Monitor: wait status...");
+                sysLogger.log("Monitor: wait status...");
                 if (siginfo.si_signo == SIGCHLD) {
 
-                    m_sSysLogger->log("Monitor: got child status...");
+                    sysLogger.log("Monitor: got child status...");
                     wait(&status);
 
-                    m_sSysLogger->log("Monitor: got exit status");
+                    sysLogger.log("Monitor: got exit status");
 
                     status = WEXITSTATUS(status);
                     if (status == CHILD_NEED_TERMINATE) {
-                        m_sSysLogger->log("Monitor: children stopped");
-                        break;
+                        sysLogger.log("Monitor: children stopped");
+//                        break;
                     } else if (status == CHILD_NEED_RESTART) {// restart
-                        m_sSysLogger->log("Monitor: children restart");
+                        sysLogger.log("Monitor: children restart");
                     }
                 } else if (siginfo.si_signo == SIGUSR1) {//reread config
-                    m_sSysLogger->log(
-                            "Monitor: resend signal to pid=" + Logger::itos(
-                                    pid));
+                    sysLogger.log("Monitor: resend signal to pid=" + Logger::itos(pid));
                     kill(pid, SIGUSR1); //resend signal
                     need_start = 0; //don't restart
                 } else {
-                    m_sSysLogger->log(
-                            "Monitor: signal "
-                            + string(strsignal(siginfo.si_signo)));
+                    sysLogger.log("Monitor: signal " + string(strsignal(siginfo.si_signo)));
                     //kill child
                     kill(pid, SIGTERM);
                     status = 0;
-                    break;
+//                    break;
                 }
             }
         }
-        m_sSysLogger->log("Monitor: stopped");
+        sysLogger.log("Monitor: stopped");
         //delete pid file
-        //unlink(PlatformFactory::getInstance()->calculateFilenameToStorePID(this->getName()));
+        //unlink(calculateFilenameToStorePID(this->getName()));
     }
 
 }

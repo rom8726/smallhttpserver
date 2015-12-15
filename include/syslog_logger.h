@@ -5,13 +5,14 @@
 
 namespace Common {
 
+    //----------------------------------------------------------------------
     class SyslogLogger : public Logger {
     public:
         SyslogLogger();
 
-        void log(std::string logMessage);
+        void log(const std::string& logMessage) const;
 
-        void setName(std::string name);
+        void setName(const std::string& name);
 
         virtual ~SyslogLogger();
     };

@@ -50,15 +50,15 @@ namespace Network {
 namespace System {
 
     //----------------------------------------------------------------------
-    class DemonizerException : public std::runtime_error {
+    class SystemException : public std::runtime_error {
     public:
-        DemonizerException(const std::string &arg)
+        SystemException(const std::string &arg)
                 : std::runtime_error(arg) { }
 
-        DemonizerException(int _code, const std::string &arg)
+        SystemException(int _code, const std::string &arg)
                 : std::runtime_error(arg), code(_code) { }
 
-        virtual ~DemonizerException() { }
+        virtual ~SystemException() { }
 
         virtual int getCode() const {
             return code;
@@ -66,6 +66,16 @@ namespace System {
 
     private:
         int code = 0;
+    };
+
+    //----------------------------------------------------------------------
+    class DemonizerException : public SystemException {
+    public:
+        DemonizerException(const std::string &arg)
+                : SystemException(arg) { }
+
+        DemonizerException(int _code, const std::string &arg)
+                : SystemException(_code, arg) { }
     };
 }
 

@@ -2,10 +2,11 @@
 #define __COMMON__APP_CONFIG_H__
 
 #include "tools.h"
+#include "logger.h"
 #include "service_interface.h"
 
 #include <string>
-#include <mutex>
+#include <memory>
 
 namespace Common {
 
@@ -15,6 +16,7 @@ namespace Common {
         class AppConfig : public IService
         {
         public:
+            AppConfig();
             virtual ~AppConfig() { }
 
             bool init();
@@ -40,20 +42,32 @@ namespace Common {
                 return m_defaultPage;
             }
 
-            bool isDebug() const {
-                return m_isDebug;
+            bool isLogging() const {
+                return m_isLogging;
             }
 
             bool isCachingEnabled() const {
                 return m_isCachingEnabled;
             }
 
+            bool isDaemon() const {
+                return m_isDaemon;
+            }
+
             uint16_t getMemcachedServerPort() const {
                 return m_memcachedSrvPort;
             }
 
-            std::mutex& getStdOutMutex() {
-                return m_stdOutMutex;
+            const Logger* getLogger() const {
+                return m_logger.get();
+            }
+
+            void setLogger(std::shared_ptr<Logger>& logger) {
+                m_logger = logger;
+            }
+
+            void setDaemon(bool isDaemon) {
+                m_isDaemon = isDaemon;
             }
 
         private:
@@ -67,10 +81,11 @@ namespace Common {
             uint16_t m_memcachedSrvPort;
             uint16_t m_threadsCount;
 
-            bool m_isDebug;
+            bool m_isLogging;
             bool m_isCachingEnabled;
+            bool m_isDaemon;
 
-            std::mutex m_stdOutMutex;
+            std::shared_ptr<Logger> m_logger = nullptr;
         };
     }
 }

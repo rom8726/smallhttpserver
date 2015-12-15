@@ -17,6 +17,7 @@ set(SOURCE_FILES
         src/syslog_logger.cpp
         src/null_logger.cpp
         src/demonizer.cpp
+        src/tools.cpp
 )
 
 
