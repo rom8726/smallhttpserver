@@ -25,11 +25,11 @@ using namespace Common::Services;
 
 
 //----------------------------------------------------------------------
-void initServices(bool isDaemon, const char* pathToConfig = NULL);
 int workFunc();
 int workStopFunc();
 int workRereadConfigFunc();
 std::string getConfigPath();
+void initServices(bool isDaemon, const char* pathToConfig = NULL);
 
 static std::shared_ptr<Network::HttpServer> server(nullptr);
 static std::string gPathToConfig = getConfigPath();
