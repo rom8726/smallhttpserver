@@ -25,14 +25,14 @@ using namespace Common::Services;
 
 
 //----------------------------------------------------------------------
-static std::shared_ptr<Network::HttpServer> server(nullptr);
-static std::string gPathToConfig;
-
 void initServices(bool isDaemon, const char* pathToConfig = NULL);
 int workFunc();
 int workStopFunc();
 int workRereadConfigFunc();
 std::string getConfigPath();
+
+static std::shared_ptr<Network::HttpServer> server(nullptr);
+static std::string gPathToConfig = getConfigPath();
 
 //----------------------------------------------------------------------
 int main(int argc, char* argv[]) {
@@ -79,8 +79,6 @@ int main(int argc, char* argv[]) {
             exit(0);
         }
     }
-
-    gPathToConfig = getConfigPath();
 
     initServices(isDaemon);
     AppServices& services = AppServices::getInstance();
