@@ -3,15 +3,20 @@
 #include "http_content_type.h"
 #include "app_services.h"
 #include "demonizer.h"
+#include "proj_defs.h"
 
 #include <iostream>
 #include <null_logger.h>
 #include <syslog_logger.h>
 
+#if USE_BOOST_FILEPATH
+#include <boost/filesystem.hpp>
+#else
 #ifdef __linux__
 #include <linux/limits.h>
 #else
 #define PATH_MAX 4096
+#endif
 #endif
 
 using namespace System;
@@ -27,6 +32,7 @@ void initServices(bool isDaemon, const char* pathToConfig = NULL);
 int workFunc();
 int workStopFunc();
 int workRereadConfigFunc();
+std::string getConfigPath();
 
 //----------------------------------------------------------------------
 int main(int argc, char* argv[]) {
@@ -74,16 +80,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    char pathbuf[PATH_MAX];
-    char *pathres = realpath("./config.json", pathbuf);
-    if (!pathres) {
-        AppServices::getLogger()->err("realpath for config.json failed!");
-        free(pathres);
-        exit(EXIT_FAILURE);
-    }
-    gPathToConfig = std::string(pathres);
+    gPathToConfig = getConfigPath();
 
-    initServices(isDaemon, gPathToConfig.c_str());
+    initServices(isDaemon);
     AppServices& services = AppServices::getInstance();
     AppConfig* config = services.getService<AppConfig>();
 
@@ -198,7 +197,7 @@ int workFunc() {
 
         if (config->isDaemon()) {
             // TODO:
-            while (server->isRun()) {
+            while (!server->isAllThreadsDone()) {
                 std::this_thread::yield();
             }
         } else {
@@ -222,8 +221,7 @@ int workStopFunc() {
     logger->log("Stopping server...");
 
     server->stop();
-    while (server->isRun()) {
-        logger->log(".");
+    while (!server->isAllThreadsDone()) {
         std::this_thread::yield();
     }
 
@@ -251,4 +249,19 @@ int workRereadConfigFunc() {
     workFunc();
 
     return EXIT_SUCCESS;
+}
+
+std::string getConfigPath() {
+#if USE_BOOST_FILEPATH
+    return boost::filesystem::current_path().string() + "/config.json";
+#else
+    char pathbuf[PATH_MAX];
+    char *pathres = realpath("./config.json", pathbuf);
+    if (!pathres) {
+        AppServices::getLogger()->err("realpath for config.json failed!");
+        free(pathres);
+        exit(EXIT_FAILURE);
+    }
+    return std::string(pathres);
+#endif
 }

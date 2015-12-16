@@ -31,7 +31,7 @@ namespace Network {
                    std::size_t maxBodySize = MaxBodySize);
 
         void stop();
-        bool isRun() const;
+        bool isAllThreadsDone() const;
 
     private:
 
@@ -44,6 +44,7 @@ namespace Network {
         ThreadsPool m_threadsPool;
 
         volatile bool m_isRun = true;
+        volatile bool m_isAllThreadsDone = false;
         Common::BoolFlagInvertor m_isRunInvertor;
 
         std::atomic_int m_workingThreadsCnt;

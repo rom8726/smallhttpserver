@@ -160,6 +160,9 @@ namespace Network {
 
             AppServices::getLogger()->log("Stopping thread #" + std::to_string(thrId));
             --m_workingThreadsCnt;
+            if (m_workingThreadsCnt == 0) {
+                m_isAllThreadsDone = true;
+            }
         };
 
 
@@ -191,11 +194,12 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    bool HttpServer::isRun() const {
-        if (m_workingThreadsCnt > 0) {
-            return true;
-        }
+    bool HttpServer::isAllThreadsDone() const {
+        //if (m_workingThreadsCnt > 0) {
+        //    return true;
+        //}
+        //return false;
 
-        return false;
+        return m_isAllThreadsDone;
     }
 }
