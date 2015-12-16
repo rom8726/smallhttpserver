@@ -26,7 +26,7 @@ int workFunc();
 int workStopFunc();
 int workRereadConfigFunc();
 std::string getConfigPath();
-void initServices(bool isDaemon, const char* pathToConfig = NULL);
+void initServices(bool isDaemon, const char* pathToConfig = nullptr);
 
 static std::shared_ptr<Network::HttpServer> server(nullptr);
 static std::string gPathToConfig = getConfigPath();
@@ -214,7 +214,7 @@ void initServices(bool isDaemon, const char* _pathToConfig) {
     services.clear();
 
     std::string pathToConfig;
-    if (_pathToConfig == NULL) {
+    if (_pathToConfig == nullptr) {
         pathToConfig = gPathToConfig;
     } else {
         pathToConfig = std::string(_pathToConfig);
