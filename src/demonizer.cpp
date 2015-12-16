@@ -98,9 +98,9 @@ namespace System {
 
         umask(0);
 
-//        if (getrlimit(RLIMIT_NOFILE, &limits) < 0) {
-//            throw DemonizerException("can`t get RLIMIT_NOFILE");
-//        }
+        if (getrlimit(RLIMIT_NOFILE, &limits) < 0) {
+            throw DemonizerException("can`t get RLIMIT_NOFILE");
+        }
 
         //fork process and disconnect it from parent
         if ((pid = fork()) < 0) {
@@ -139,10 +139,10 @@ namespace System {
         if (limits.rlim_max == RLIM_INFINITY)
             limits.rlim_max = 1024;
 
-//        u_int32_t idx;
-//        for (idx = 0; idx < limits.rlim_max; ++idx) {
-//            close(idx);
-//        }
+        u_int32_t idx;
+        for (idx = 0; idx < limits.rlim_max; ++idx) {
+            close(idx);
+        }
 
         //reopen stdout to /dev/null and another strems to it
         int fd0 = open("/dev/null", O_RDWR);
