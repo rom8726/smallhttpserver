@@ -1,8 +1,8 @@
 #include "app_config.h"
+#include "app_services.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <console_logger.h>
 
 
 namespace Common {
@@ -11,7 +11,15 @@ namespace Common {
 
         //----------------------------------------------------------------------
         AppConfig::AppConfig()
-            : m_isDaemon(false), m_isLogging(false), m_isCachingEnabled(false)
+            : m_isDaemon(false), m_isLogging(false),
+              m_isCachingEnabled(false), m_pathToConfig("./config.json")
+        {
+        }
+
+        //----------------------------------------------------------------------
+        AppConfig::AppConfig(const std::string& pathToConfig)
+            : m_isDaemon(false), m_isLogging(false),
+              m_isCachingEnabled(false), m_pathToConfig(pathToConfig)
         {
         }
 
@@ -22,11 +30,11 @@ namespace Common {
 
             try {
 
-                if (access("config.json", F_OK) != 0) {
+                if (access(m_pathToConfig.c_str(), F_OK) != 0) {
                     throw std::runtime_error("config.json is not found!");
                 }
 
-                std::ifstream file("config.json");
+                std::ifstream file(m_pathToConfig);
                 if (file.is_open()) {
 
                     boost::property_tree::ptree pt;
@@ -60,7 +68,6 @@ namespace Common {
                     }
 
                     m_isLogging = pt.get<bool>("logging-enable");
-                    m_logger.reset(new ConsoleLogger);
 
                     m_isCachingEnabled = pt.get<bool>("cache-enable");
                     if (m_isCachingEnabled) {
@@ -79,7 +86,7 @@ namespace Common {
                 }
 
             } catch (const std::exception &ex) {
-                std::cerr << ex.what() << std::endl;
+                AppServices::getLogger()->err(ex.what());
             } catch (...) {
             }
 

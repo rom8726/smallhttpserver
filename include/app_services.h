@@ -4,9 +4,9 @@
 #include "non_copyable.h"
 #include "app_config.h"
 #include "cache_service.h"
+#include "console_logger.h"
 
 #include <sstream>
-#include <memory>
 #include <map>
 
 
@@ -17,14 +17,20 @@ namespace Common {
         //----------------------------------------------------------------------
         class SingletonDestroyer;
 
-        class AppServicesFactory final : public NonCopyable {
+        class AppServices final : public NonCopyable {
         public:
-            static AppServicesFactory& getInstance();
-            bool initAll();
+            static AppServices& getInstance();
+            void clear() { m_services.clear(); }
+
+            template <class T>
+            void addService(ServicePtr servicePtr) {
+                static_assert(std::is_base_of<IService, T>::value, "AppServices::addService: class T not derived from IService");
+                m_services[T::getName()] = servicePtr;
+            }
 
             template <class T>
             T* getService() {
-                static_assert(std::is_base_of<IService, T>::value, "AppServicesFactory::getService: class T not derived from IService");
+                static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
 
                 const std::string name = T::getName();
                 if (m_services.find(name) != m_services.end()) {
@@ -38,25 +44,34 @@ namespace Common {
                 throw std::runtime_error(std::string("Service ") + name + std::string(" not found!"));
             }
 
+            static LoggerPtr& getLogger() {
+                if (!m_logger)
+                    m_logger.reset(new ConsoleLogger);
+                return m_logger;
+            }
+
+            static void setLogger(LoggerPtr logger) { m_logger = logger; }
+
         protected:
-            ~AppServicesFactory() { }
+            ~AppServices() { }
             friend class SingletonDestroyer;
         private:
-            static AppServicesFactory *m_pInstance;
+            static AppServices *m_pInstance;
             static SingletonDestroyer destroyer;
 
-            typedef std::unique_ptr<IService> ServicePtr;
             typedef std::map<std::string, ServicePtr> ServicesMap;
             ServicesMap m_services;
+
+            static LoggerPtr m_logger;
         };
 
         //----------------------------------------------------------------------
         class SingletonDestroyer {
         private:
-            AppServicesFactory *m_pInstance = nullptr;
+            AppServices *m_pInstance = nullptr;
         public:
             virtual ~SingletonDestroyer();
-            void init(AppServicesFactory *p);
+            void init(AppServices *p);
         };
     }
 }

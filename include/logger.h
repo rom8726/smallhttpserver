@@ -1,10 +1,14 @@
 #ifndef __COMMON__LOGGER_H__
 #define __COMMON__LOGGER_H__
 
+#include <memory>
 #include <string>
 #include <stdio.h>
 
 namespace Common {
+
+    class Logger;
+    typedef std::shared_ptr<Logger> LoggerPtr;
 
     //----------------------------------------------------------------------
     class Logger {
@@ -13,6 +17,7 @@ namespace Common {
         virtual ~Logger();
 
         virtual void log(const std::string& logMessage) const = 0;
+        virtual void err(const std::string& logMessage) const = 0;
 
         void setName(const std::string& name) { this->name = name; }
 

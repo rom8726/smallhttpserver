@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <app_services.h>
 
 namespace Common {
 
@@ -53,7 +54,7 @@ namespace Common {
                 this->setInitialized(true);
 
             } catch (const std::exception& ex) {
-                std::cerr << ex.what() << std::endl;
+                AppServices::getLogger()->err(std::string(ex.what()));
             } catch (...) {}
 
             return isInitialized();

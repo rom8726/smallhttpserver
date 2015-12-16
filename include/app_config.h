@@ -2,7 +2,6 @@
 #define __COMMON__APP_CONFIG_H__
 
 #include "tools.h"
-#include "logger.h"
 #include "service_interface.h"
 
 #include <string>
@@ -17,6 +16,7 @@ namespace Common {
         {
         public:
             AppConfig();
+            AppConfig(const std::string& pathToConfig);
             virtual ~AppConfig() { }
 
             bool init();
@@ -42,6 +42,10 @@ namespace Common {
                 return m_defaultPage;
             }
 
+            const std::string& getPathToConfig() const {
+                return m_pathToConfig;
+            }
+
             bool isLogging() const {
                 return m_isLogging;
             }
@@ -58,16 +62,12 @@ namespace Common {
                 return m_memcachedSrvPort;
             }
 
-            const Logger* getLogger() const {
-                return m_logger.get();
-            }
-
-            void setLogger(std::shared_ptr<Logger>& logger) {
-                m_logger = logger;
-            }
-
             void setDaemon(bool isDaemon) {
                 m_isDaemon = isDaemon;
+            }
+
+            void setPathToConfig(const std::string& path) {
+                m_pathToConfig = path;
             }
 
         private:
@@ -76,6 +76,7 @@ namespace Common {
             std::string m_srvIp;
             std::string m_rootDir;
             std::string m_defaultPage;
+            std::string m_pathToConfig;
 
             uint16_t m_srvPort;
             uint16_t m_memcachedSrvPort;
@@ -84,8 +85,6 @@ namespace Common {
             bool m_isLogging;
             bool m_isCachingEnabled;
             bool m_isDaemon;
-
-            std::shared_ptr<Logger> m_logger = nullptr;
         };
     }
 }

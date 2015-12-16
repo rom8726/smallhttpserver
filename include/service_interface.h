@@ -2,11 +2,14 @@
 #define __COMMON__SERVICE_INTERFACE_H__
 
 #include <string>
-
+#include <memory>
 
 namespace Common {
 
     namespace Services {
+
+        class IService;
+        typedef std::shared_ptr<IService> ServicePtr;
 
         //----------------------------------------------------------------------
         class IService {

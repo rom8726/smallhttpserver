@@ -17,6 +17,11 @@ namespace Common {
     }
 
     //----------------------------------------------------------------------
+    void ConsoleLogger::err(const std::string& logMessage) const {
+        std::cerr << logMessage << std::endl;
+    }
+
+    //----------------------------------------------------------------------
     void ConsoleLogger::log_n(char c) const {
         std::cout << c;
     }

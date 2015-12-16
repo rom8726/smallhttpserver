@@ -12,6 +12,7 @@ namespace Common {
         virtual ~NullLogger();
 
         void log(const std::string& logMessage) const { (void) logMessage; };
+        void err(const std::string& logMessage) const { (void) logMessage; };
     };
 
 }

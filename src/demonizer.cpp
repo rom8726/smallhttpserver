@@ -1,18 +1,10 @@
 #include "demonizer.h"
 #include "syslog_logger.h"
-#include "exceptions.h"
 #include "tools.h"
 
 #include <unistd.h>
-//#include <pthread.h>
-//#include <stdio.h>
-//#include <stdlib.h>
 #include <string.h>
-//#include <errno.h>
-//#include <syslog.h>
 #include <fcntl.h>
-//#include <signal.h>
-//#include <string.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
 #include <execinfo.h>
@@ -308,7 +300,7 @@ namespace System {
         sigaddset(&sigset, SIGCHLD);
         sigprocmask(SIG_BLOCK, &sigset, NULL);
 
-        /*for (; ;) */{
+        for (; ;) {
             if (need_start) {
                 pid = fork();
                 if (pid != 0) {
@@ -341,7 +333,7 @@ namespace System {
                     status = WEXITSTATUS(status);
                     if (status == CHILD_NEED_TERMINATE) {
                         sysLogger.log("Monitor: children stopped");
-//                        break;
+                        break;
                     } else if (status == CHILD_NEED_RESTART) {// restart
                         sysLogger.log("Monitor: children restart");
                     }
@@ -354,7 +346,7 @@ namespace System {
                     //kill child
                     kill(pid, SIGTERM);
                     status = 0;
-//                    break;
+                    break;
                 }
             }
         }

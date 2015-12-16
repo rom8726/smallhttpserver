@@ -1,15 +1,18 @@
 #include "http_server.h"
 #include "http_headers.h"
 #include "http_content_type.h"
-#include "app_services_factory.h"
+#include "app_services.h"
 #include "demonizer.h"
 
-#include <memory>
 #include <iostream>
 #include <null_logger.h>
-#include <console_logger.h>
 #include <syslog_logger.h>
-#include <unistd.h>
+
+#ifdef __linux__
+#include <linux/limits.h>
+#else
+#define PATH_MAX 4096
+#endif
 
 using namespace System;
 using namespace Common;
@@ -17,10 +20,10 @@ using namespace Common::Services;
 
 
 //----------------------------------------------------------------------
-static std::shared_ptr<Logger> logger(new ConsoleLogger);
 static std::shared_ptr<Network::HttpServer> server(nullptr);
-static bool isDaemon = true;
+static std::string gPathToConfig;
 
+void initServices(bool isDaemon, const char* pathToConfig = NULL);
 int workFunc();
 int workStopFunc();
 int workRereadConfigFunc();
@@ -28,70 +31,77 @@ int workRereadConfigFunc();
 //----------------------------------------------------------------------
 int main(int argc, char* argv[]) {
 
-    std::string daemonName = "smallhttpserver";
+    const std::string daemonName = "smallhttpserver";
+    bool isDaemon = true;
 
 //    signal(SIGPIPE, SIG_IGN); //ignore SIGPIPE for send() error recovery
 
     if (argc == 2) {
 
-        if (!strcmp(argv[1], "console"))
+        if (!strcmp(argv[1], "console")) {
             isDaemon = false;
 
-        if (!strcmp(argv[1], "stop")) {
-            std::cout << "Stopping daemon..." << std::endl;
+        } else if (!strcmp(argv[1], "stop")) {
+            ConsoleLogger consoleLogger;
+            consoleLogger.log("Stopping daemon...");
+
             std::unique_ptr<Demonizer> daemon(new Demonizer);
             daemon->setName(daemonName);
             try {
                 daemon->stopWorker();
             } catch (const SystemException& ex) {
-                std::cout << "Stop exception :" << ex.what() << std::endl;
+                consoleLogger.err("Stop exception :" + std::string(ex.what()));
                 exit(1);
             }
-            std::cout << "Stop ok" << std::endl;
+            consoleLogger.log("Stop OK");
             exit(0);
-        }
-        if (!strcmp(argv[1], "reconfig")) {
 
-            std::cout << "Sending reconfig signal to daemon..." << std::endl;
+        } else if (!strcmp(argv[1], "reconfig")) {
+
+            ConsoleLogger consoleLogger;
+            consoleLogger.log("Sending reconfig signal to daemon...");
+
             std::unique_ptr<Demonizer> daemon(new Demonizer);
             daemon->setName(daemonName);
             try {
                 daemon->sendUserSignalToWorker();
             } catch (const SystemException& ex) {
-                std::cout << "send signal exception :" << ex.what() << std::endl;
+                consoleLogger.err("send signal exception :" + std::string(ex.what()));
                 exit(1);
             }
-            std::cout << "Send ok" << std::endl;
+            consoleLogger.log("Send OK");
             exit(0);
         }
     }
 
-    std::cout << "Config reading..." << std::endl;
-    AppServicesFactory& services = AppServicesFactory::getInstance();
-    if (!services.initAll()) {
-        std::cerr << "Couldn't init app services!" << std::endl;
-        return EXIT_FAILURE;
+    char pathbuf[PATH_MAX];
+    char *pathres = realpath("./config.json", pathbuf);
+    if (!pathres) {
+        AppServices::getLogger()->err("realpath for config.json failed!");
+        free(pathres);
+        exit(EXIT_FAILURE);
     }
-    std::cout << "Config reading : SUCCESS" << std::endl;
+    gPathToConfig = std::string(pathres);
 
+    initServices(isDaemon, gPathToConfig.c_str());
+    AppServices& services = AppServices::getInstance();
     AppConfig* config = services.getService<AppConfig>();
-    config->setDaemon(false);
 
     if (!config->isLogging()) {// log off
-        logger.reset(new NullLogger);
-        config->setLogger(logger);
+        AppServices::setLogger(LoggerPtr(new NullLogger));
     }
 
     if (isDaemon) {
         //demonize
 
-        config->setDaemon(true);
-        logger->log("Switch to daemon state now (see syslog for output)...");
+        //config->setDaemon(true);
+        std::cout << "Switch to daemon state now (see syslog for output)..." << std::endl;
 
         if (config->isLogging()) {
-            logger.reset(new SyslogLogger());
-            config->setLogger(logger);
+            AppServices::setLogger(LoggerPtr(new SyslogLogger()));
         }
+
+        LoggerPtr& logger = AppServices::getLogger();
 
         std::unique_ptr<Demonizer> daemon(new Demonizer);
         daemon->setName(daemonName);
@@ -101,7 +111,7 @@ int main(int argc, char* argv[]) {
         try {
             daemon->setup();
         } catch (const SystemException& ex) {
-            logger->log(ex.what());
+            logger->err(ex.what());
             exit(1);
         }
 
@@ -116,11 +126,49 @@ int main(int argc, char* argv[]) {
 }
 
 //----------------------------------------------------------------------
+void initServices(bool isDaemon, const char* _pathToConfig) {
+    AppServices& services = AppServices::getInstance();
+    services.clear();
+
+    std::string pathToConfig;
+    if (_pathToConfig == NULL) {
+        pathToConfig = gPathToConfig;
+    } else {
+        pathToConfig = std::string(_pathToConfig);
+    }
+
+    ServicePtr iConfig(new AppConfig(pathToConfig));
+    AppConfig* config = static_cast<AppConfig*>(iConfig.get());
+    LoggerPtr& logger = AppServices::getLogger();
+
+    logger->log("Config reading...");
+    if (config->init() == false) {
+        logger->err("init app config failed!");
+        exit(EXIT_FAILURE);
+    }
+    config->setDaemon(isDaemon);
+    services.addService<AppConfig>(iConfig);
+    logger->log("Config reading : SUCCESS");
+
+    if (config->isCachingEnabled()) {
+        ServicePtr iCache(new CacheService);
+        CacheService* cache = static_cast<CacheService*>(iCache.get());
+        if (cache->init(config->getMemcachedServerPort()) == false) {
+            logger->err("init cache service failed!");
+            exit(EXIT_FAILURE);
+        }
+
+        services.addService<CacheService>(iCache);
+    }
+}
+
+//----------------------------------------------------------------------
 int workFunc() {
 
-    AppServicesFactory& services = AppServicesFactory::getInstance();
+    AppServices& services = AppServices::getInstance();
     AppConfig* config = services.getService<AppConfig>();
-    config->getLogger()->log("workFunc start");
+    LoggerPtr& logger = AppServices::getLogger();
+    logger->log("workFunc start");
 
     try {
         using namespace Network;
@@ -143,12 +191,13 @@ int workFunc() {
                               << Http::Request::Header::Referer::Name << ": "
                               << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
 
-                              config->getLogger()->log(ss.str());
+                              logger->log(ss.str());
                           }
                       }
         ));
 
         if (config->isDaemon()) {
+            // TODO:
             while (server->isRun()) {
                 std::this_thread::yield();
             }
@@ -158,17 +207,18 @@ int workFunc() {
         }
     }
     catch (std::exception const &e) {
-        logger->log(e.what());
+        logger->err(e.what());
         exit(EXIT_FAILURE);
-        return EXIT_FAILURE;
+        //return EXIT_FAILURE;
     }
 
     exit(EXIT_SUCCESS);
-    return EXIT_SUCCESS;
+    //return EXIT_SUCCESS;
 }
 
 //----------------------------------------------------------------------
 int workStopFunc() {
+    LoggerPtr& logger = AppServices::getLogger();
     logger->log("Stopping server...");
 
     server->stop();
@@ -188,17 +238,15 @@ int workRereadConfigFunc() {
 
     workStopFunc();
 
-    logger->log("Config reading...");
-    AppServicesFactory& services = AppServicesFactory::getInstance();
-    if (!services.initAll()) {
-        logger->log("Couldn't init app services!");
-        exit(EXIT_FAILURE);
-        return EXIT_FAILURE;
-    }
-    AppConfig* config = services.getService<AppConfig>();
-    config->setDaemon(true);
+    AppServices::setLogger(LoggerPtr(new SyslogLogger));
 
-    logger->log("Config reading : SUCCESS");
+    initServices(true);
+
+    AppServices& services = AppServices::getInstance();
+    AppConfig* config = services.getService<AppConfig>();
+    if (!config->isLogging()) {
+        AppServices::setLogger(LoggerPtr(new NullLogger));
+    }
 
     workFunc();
 

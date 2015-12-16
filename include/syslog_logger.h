@@ -11,6 +11,7 @@ namespace Common {
         SyslogLogger();
 
         void log(const std::string& logMessage) const;
+        void err(const std::string& logMessage) const;
 
         void setName(const std::string& name);
 

@@ -1,7 +1,6 @@
 #include "http_request.h"
-#include "app_services_factory.h"
+#include "app_services.h"
 
-#include <sstream>
 #include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
@@ -205,10 +204,10 @@ namespace Network {
     void HttpRequest::setResponseFile(const std::string &fileName) {
 
         // Try to load file from cache
-        AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
+        AppConfig* config = AppServices::getInstance().getService<AppConfig>();
 
         if (config->isCachingEnabled()) {
-            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
+            CacheService* cache = AppServices::getInstance().getService<CacheService>();
             char* cachedValue = NULL;
             size_t cachedValLen = 0;
             if ((cachedValue = cache->load(fileName.c_str(), fileName.size(), &cachedValLen)) != NULL) {
@@ -243,7 +242,7 @@ namespace Network {
 
         if (config->isCachingEnabled()) {
             // Store in the cache
-            CacheService* cache = AppServicesFactory::getInstance().getService<CacheService>();
+            CacheService* cache = AppServices::getInstance().getService<CacheService>();
             char* cachedValue = (char *) malloc(length);
             if(this->getOutputContent(cachedValue, length, false) != -1) {
                 cache->store(fileName.c_str(), fileName.size(), cachedValue, length);

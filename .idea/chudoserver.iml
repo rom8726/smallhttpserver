@@ -4,7 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/app_config.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/app_services_factory.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/app_services.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/cache_service.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/console_logger.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/demonizer.cpp" isTestSource="false" />

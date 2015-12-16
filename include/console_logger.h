@@ -13,6 +13,7 @@ namespace Common {
         virtual ~ConsoleLogger();
 
         void log(const std::string& logMessage) const;
+        void err(const std::string& logMessage) const;
 
         void log_n(char c) const;
     };

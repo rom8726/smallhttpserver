@@ -10,7 +10,7 @@ set(SOURCE_FILES
         src/http_server.cpp
         src/http_request.cpp
         src/app_config.cpp
-        src/app_services_factory.cpp
+        src/app_services.cpp
         src/cache_service.cpp
         src/logger.cpp
         src/console_logger.cpp

@@ -23,4 +23,9 @@ namespace Common {
     void SyslogLogger::log(const std::string& logMessage) const {
         syslog(LOG_INFO, logMessage.c_str(), "");
     }
+
+    //----------------------------------------------------------------------
+    void SyslogLogger::err(const std::string& logMessage) const {
+        syslog(LOG_ERR, logMessage.c_str(), "");
+    }
 }

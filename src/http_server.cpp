@@ -1,8 +1,7 @@
 #include "http_server.h"
 #include "http_request.h"
-#include "app_services_factory.h"
+#include "app_services.h"
 
-#include <sstream>
 #include <cstring>
 #include <iostream>
 #include <unistd.h>
@@ -24,12 +23,7 @@ namespace Network {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
 
-            //AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
-            //if (config->isLogging()) {
-            //    config->getLogger()->log("Working thread: " + std::to_string(reqPrm->threadId));
-            //}
-
-//            Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
+            //Common::BoolFlagInvertor flagInvertor(reqPrm->isInProcess);
             reqPrm->func(pRequest);
 
             auto *outputBuffer = evhttp_request_get_output_buffer(request);
@@ -93,6 +87,8 @@ namespace Network {
     {
 
         m_workingThreadsCnt = 0;
+        static unsigned short s_threadId = 0;
+        s_threadId = 0;
 
         int allowedMethods = -1;
         for (const auto i : allowedMethodsArg)
@@ -104,7 +100,6 @@ namespace Network {
 
         auto threadFunc = [&]() {
 
-            static unsigned short s_threadId = 0;
             unsigned short thrId = ++s_threadId;
 
             try {
@@ -163,8 +158,7 @@ namespace Network {
                 except = std::current_exception();
             }
 
-            AppConfig* config = AppServicesFactory::getInstance().getService<AppConfig>();
-            config->getLogger()->log("Stopping thread #" + std::to_string(thrId));
+            AppServices::getLogger()->log("Stopping thread #" + std::to_string(thrId));
             --m_workingThreadsCnt;
         };
 
