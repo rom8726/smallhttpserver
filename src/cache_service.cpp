@@ -35,7 +35,7 @@ namespace Common {
 
             try {
 
-                if (m_memcachedSrvPort == 0) {
+                if (m_memcachedSrvPort <= 1024) {
                     throw std::runtime_error("memcached server port must be > 1024!");
                 }
 

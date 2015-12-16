@@ -215,6 +215,8 @@ int workRereadConfigFunc() {
 //----------------------------------------------------------------------
 void initServices(bool isDaemon, const char* _pathToConfig) {
     AppServices& services = AppServices::getInstance();
+    LoggerPtr& logger = AppServices::getLogger();
+
     services.clear();
 
     std::string pathToConfig;
@@ -226,7 +228,6 @@ void initServices(bool isDaemon, const char* _pathToConfig) {
 
     ServicePtr iConfig(new AppConfig(pathToConfig));
     AppConfig* config = static_cast<AppConfig*>(iConfig.get());
-    LoggerPtr& logger = AppServices::getLogger();
 
     logger->log("Config reading...");
     if (config->init() == false) {
@@ -238,9 +239,8 @@ void initServices(bool isDaemon, const char* _pathToConfig) {
     logger->log("Config reading : SUCCESS");
 
     if (config->isCachingEnabled()) {
-        ServicePtr iCache(new CacheService);
-        CacheService* cache = static_cast<CacheService*>(iCache.get());
-        if (cache->init(config->getMemcachedServerPort()) == false) {
+        ServicePtr iCache(new CacheService(config->getMemcachedServerPort()));
+        if (iCache->init() == false) {
             logger->err("init cache service failed!");
             exit(EXIT_FAILURE);
         }
