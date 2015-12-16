@@ -6,6 +6,8 @@
 
 #include <string>
 #include <memory>
+#include <unordered_map>
+//#include <map>
 
 namespace Common {
 
@@ -70,6 +72,9 @@ namespace Common {
                 m_pathToConfig = path;
             }
 
+            const std::string getContentTypeFromFileName(const std::string& fileName) const;
+            const std::string getContentTypeByExtension(const std::string& extension) const;
+
         private:
             const uint16_t THREADS_MAX = 64;
 
@@ -85,6 +90,9 @@ namespace Common {
             bool m_isLogging;
             bool m_isCachingEnabled;
             bool m_isDaemon;
+
+            //std::map
+            std::unordered_map<std::string, std::string> m_contentTypes;
         };
     }
 }

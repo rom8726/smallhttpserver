@@ -3,6 +3,9 @@
 
 #include "non_copyable.h"
 #include "exceptions.h"
+#include "app_services.h"
+#include "app_config.h"
+
 
 namespace Common {
 
@@ -19,7 +22,7 @@ namespace Common {
         }
 
     private:
-        bool volatile *m_pFlag;
+        volatile bool *m_pFlag;
     };
 
 }

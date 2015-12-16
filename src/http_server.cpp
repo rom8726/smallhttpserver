@@ -145,13 +145,12 @@ namespace Network {
                 doneInitThread = true;
 
                 while (m_isRun) {
-//                    processRequest = false;
+                    //processRequest = false;
                     if (event_base_loop(eventBasePtr.get(), EVLOOP_NONBLOCK) == -1) {
-                        // TODO: to log
                         //std::cerr << "Loop error." << std::endl;
                     }
-//                    if (!processRequest)
-//                        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    //if (!processRequest)
+                    //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }
             catch (...) {

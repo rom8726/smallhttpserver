@@ -1,7 +1,4 @@
 #include "http_server.h"
-#include "http_headers.h"
-#include "http_content_type.h"
-#include "app_services.h"
 #include "demonizer.h"
 #include "proj_defs.h"
 
@@ -39,8 +36,6 @@ int main(int argc, char* argv[]) {
 
     const std::string daemonName = "smallhttpserver";
     bool isDaemon = true;
-
-    //signal(SIGPIPE, SIG_IGN); //ignore SIGPIPE for send() error recovery
 
     if (argc == 2) {
 
@@ -138,18 +133,17 @@ int workFunc() {
                           std::string path = req->getPath();
                           path = config->getRootDir() + path + (path == "/" ? config->getDefaultPage() : std::string());
 
-                          req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
-                          req->setResponseAttr(Http::Response::Header::ContentType::Value,
-                                               Http::Content::TypeFromFileName(path));
+                          req->setResponseAttr("Server", "smallhttpserver");
+                          req->setResponseAttr("Content-Type", config->getContentTypeFromFileName(path));
                           req->setResponseFile(path);
 
                           if (config->isLogging()) {
                               std::stringstream ss;
                               ss << "path: " << path << std::endl
-                              << Http::Request::Header::Host::Name << ": "
-                              << req->getHeaderAttr(Http::Request::Header::Host::Value) << std::endl
-                              << Http::Request::Header::Referer::Name << ": "
-                              << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
+                              << "host: "
+                              << req->getHeaderAttr("host") << std::endl
+                              << "referer: "
+                              << req->getHeaderAttr("referer") << std::endl;
 
                               logger->log(ss.str());
                           }

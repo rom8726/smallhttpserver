@@ -1,6 +1,6 @@
 #include "app_config.h"
-#include "app_services.h"
 
+#include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -79,6 +79,14 @@ namespace Common {
                         m_memcachedSrvPort = 0;
                     }
 
+
+                    BOOST_FOREACH(const boost::property_tree::ptree::value_type& child, pt.get_child("extension-contenttype")) {
+                        auto ext = child.second.get<std::string>("ext");
+                        auto type = child.second.get<std::string>("type");
+                        m_contentTypes.insert(std::make_pair(ext, type));
+                    }
+
+
                     this->setInitialized(true);
 
                 } else {
@@ -91,6 +99,24 @@ namespace Common {
             }
 
             return isInitialized();
+        }
+
+        //----------------------------------------------------------------------
+        const std::string AppConfig::getContentTypeFromFileName(const std::string& fileName) const {
+            auto pos = fileName.rfind('.');
+            if (pos == std::string::npos)
+                return "";
+
+            return this->getContentTypeByExtension(fileName.substr(pos + 1));
+        }
+
+        //----------------------------------------------------------------------
+        const std::string AppConfig::getContentTypeByExtension(const std::string& extension) const {
+            if (m_contentTypes.find(extension) == m_contentTypes.end()) {
+                return "";
+            }
+
+            return m_contentTypes.at(extension);
         }
     }
 }
