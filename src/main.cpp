@@ -125,43 +125,6 @@ int main(int argc, char* argv[]) {
 }
 
 //----------------------------------------------------------------------
-void initServices(bool isDaemon, const char* _pathToConfig) {
-    AppServices& services = AppServices::getInstance();
-    services.clear();
-
-    std::string pathToConfig;
-    if (_pathToConfig == NULL) {
-        pathToConfig = gPathToConfig;
-    } else {
-        pathToConfig = std::string(_pathToConfig);
-    }
-
-    ServicePtr iConfig(new AppConfig(pathToConfig));
-    AppConfig* config = static_cast<AppConfig*>(iConfig.get());
-    LoggerPtr& logger = AppServices::getLogger();
-
-    logger->log("Config reading...");
-    if (config->init() == false) {
-        logger->err("init app config failed!");
-        exit(EXIT_FAILURE);
-    }
-    config->setDaemon(isDaemon);
-    services.addService<AppConfig>(iConfig);
-    logger->log("Config reading : SUCCESS");
-
-    if (config->isCachingEnabled()) {
-        ServicePtr iCache(new CacheService);
-        CacheService* cache = static_cast<CacheService*>(iCache.get());
-        if (cache->init(config->getMemcachedServerPort()) == false) {
-            logger->err("init cache service failed!");
-            exit(EXIT_FAILURE);
-        }
-
-        services.addService<CacheService>(iCache);
-    }
-}
-
-//----------------------------------------------------------------------
 int workFunc() {
 
     AppServices& services = AppServices::getInstance();
@@ -251,6 +214,44 @@ int workRereadConfigFunc() {
     return EXIT_SUCCESS;
 }
 
+//----------------------------------------------------------------------
+void initServices(bool isDaemon, const char* _pathToConfig) {
+    AppServices& services = AppServices::getInstance();
+    services.clear();
+
+    std::string pathToConfig;
+    if (_pathToConfig == NULL) {
+        pathToConfig = gPathToConfig;
+    } else {
+        pathToConfig = std::string(_pathToConfig);
+    }
+
+    ServicePtr iConfig(new AppConfig(pathToConfig));
+    AppConfig* config = static_cast<AppConfig*>(iConfig.get());
+    LoggerPtr& logger = AppServices::getLogger();
+
+    logger->log("Config reading...");
+    if (config->init() == false) {
+        logger->err("init app config failed!");
+        exit(EXIT_FAILURE);
+    }
+    config->setDaemon(isDaemon);
+    services.addService<AppConfig>(iConfig);
+    logger->log("Config reading : SUCCESS");
+
+    if (config->isCachingEnabled()) {
+        ServicePtr iCache(new CacheService);
+        CacheService* cache = static_cast<CacheService*>(iCache.get());
+        if (cache->init(config->getMemcachedServerPort()) == false) {
+            logger->err("init cache service failed!");
+            exit(EXIT_FAILURE);
+        }
+
+        services.addService<CacheService>(iCache);
+    }
+}
+
+//----------------------------------------------------------------------
 std::string getConfigPath() {
 #if USE_BOOST_FILEPATH
     return boost::filesystem::current_path().string() + "/config.json";
