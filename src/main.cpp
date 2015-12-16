@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     const std::string daemonName = "smallhttpserver";
     bool isDaemon = true;
 
-//    signal(SIGPIPE, SIG_IGN); //ignore SIGPIPE for send() error recovery
+    //signal(SIGPIPE, SIG_IGN); //ignore SIGPIPE for send() error recovery
 
     if (argc == 2) {
 
