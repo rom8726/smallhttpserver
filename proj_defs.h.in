@@ -1,1 +1,6 @@
+#ifndef __PROJ_DEFS_H__
+#define __PROJ_DEFS_H__
+
 #define USE_BOOST_FILEPATH @USE_BOOST_FILEPATH@
+
+#endif // __PROJ_DEFS_H__
