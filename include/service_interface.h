@@ -21,8 +21,7 @@ namespace Common {
             virtual bool init () = 0;
             virtual bool isInitialized() { return m_isInitialized; }
 
-            static const char* s_getName() { return ""; }
-            virtual const char* getName() = 0;/*{ return s_getName(); }*/
+            virtual const char* getTypeName() = 0; /*{ return typeid(IService).name(); }*/
 
         protected:
             virtual bool setInitialized(bool initFlag) { m_isInitialized = initFlag; }
