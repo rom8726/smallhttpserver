@@ -35,7 +35,7 @@ namespace Common {
                 static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
 
                 //const std::string name = T::getName();
-                const std::string name(T::s_getTypeName());
+                const std::string name(T::s_getTypeName()); // or name(typeid(T).name());
                 if (m_services.find(name) != m_services.end()) {
                     IService* srv = m_services[name].get();
                     if (!srv->isInitialized()) {
