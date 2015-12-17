@@ -22,14 +22,16 @@ namespace Common {
             static AppServices& getInstance();
             void clear() { m_services.clear(); }
 
+            //----------------------------------------------------------------------
             //template <class T>
             void addService(ServicePtr servicePtr) {
                 //static_assert(std::is_base_of<IService, T>::value, "AppServices::addService: class T not derived from IService");
-                //m_services[T::getName()] = servicePtr;
+                //m_services[T::s_getName()] = servicePtr;
                 const char* name = servicePtr.get()->getName();
                 m_services[std::string(name)] = servicePtr;
             }
 
+            //----------------------------------------------------------------------
             template <class T>
             T* getService() {
                 static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
@@ -46,12 +48,14 @@ namespace Common {
                 throw std::runtime_error(std::string("Service ") + name + std::string(" not found!"));
             }
 
+            //----------------------------------------------------------------------
             static LoggerPtr& getLogger() {
                 if (!m_logger)
                     m_logger.reset(new ConsoleLogger);
                 return m_logger;
             }
 
+            //----------------------------------------------------------------------
             static void setLogger(LoggerPtr logger) { m_logger = logger; }
 
         protected:
