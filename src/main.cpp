@@ -34,7 +34,6 @@ static std::string gPathToConfig = getConfigPath();
 //----------------------------------------------------------------------
 int main(int argc, char* argv[]) {
 
-    const std::string daemonName = "smallhttpserver";
     bool isDaemon = true;
 
     if (argc == 2) {
@@ -46,10 +45,10 @@ int main(int argc, char* argv[]) {
             ConsoleLogger consoleLogger;
             consoleLogger.log("Stopping daemon...");
 
-            std::unique_ptr<Demonizer> daemon(new Demonizer);
-            daemon->setName(daemonName);
+            Demonizer demonizer;
+            demonizer.setName(DAEMON_NAME);
             try {
-                daemon->stopWorker();
+                demonizer.stopWorker();
             } catch (const SystemException& ex) {
                 consoleLogger.err("Stop exception :" + std::string(ex.what()));
                 exit(1);
@@ -62,10 +61,10 @@ int main(int argc, char* argv[]) {
             ConsoleLogger consoleLogger;
             consoleLogger.log("Sending reconfig signal to daemon...");
 
-            std::unique_ptr<Demonizer> daemon(new Demonizer);
-            daemon->setName(daemonName);
+            Demonizer demonizer;
+            demonizer.setName(DAEMON_NAME);
             try {
-                daemon->sendUserSignalToWorker();
+                demonizer.sendUserSignalToWorker();
             } catch (const SystemException& ex) {
                 consoleLogger.err("send signal exception :" + std::string(ex.what()));
                 exit(1);
@@ -95,20 +94,20 @@ int main(int argc, char* argv[]) {
 
         LoggerPtr& logger = AppServices::getLogger();
 
-        std::unique_ptr<Demonizer> daemon(new Demonizer);
-        daemon->setName(daemonName);
-        logger->setName(daemonName);
+        Demonizer demonizer;
+        demonizer.setName(DAEMON_NAME);
+        logger->setName(DAEMON_NAME);
         logger->log("Setup daemon...");
 
         try {
-            daemon->setup();
+            demonizer.setup();
         } catch (const SystemException& ex) {
             logger->err(ex.what());
             exit(1);
         }
 
         logger->log("Start with monitoring...");
-        daemon->startWithMonitoring(workFunc, workStopFunc, workRereadConfigFunc);
+        demonizer.startWithMonitoring(workFunc, workStopFunc, workRereadConfigFunc);
     } else {
         //no daemon
         workFunc();
@@ -141,9 +140,7 @@ int workFunc() {
                               std::stringstream ss;
                               ss << "path: " << path << std::endl
                               << "host: "
-                              << req->getHeaderAttr("host") << std::endl
-                              << "referer: "
-                              << req->getHeaderAttr("referer") << std::endl;
+                              << req->getHeaderAttr("host") << std::endl;
 
                               logger->log(ss.str());
                           }
@@ -229,7 +226,7 @@ void initServices(bool isDaemon, const char* _pathToConfig) {
         exit(EXIT_FAILURE);
     }
     config->setDaemon(isDaemon);
-    services.addService<AppConfig>(iConfig);
+    services.addService(iConfig);
     logger->log("Config reading : SUCCESS");
 
     if (config->isCachingEnabled()) {
@@ -239,7 +236,7 @@ void initServices(bool isDaemon, const char* _pathToConfig) {
             exit(EXIT_FAILURE);
         }
 
-        services.addService<CacheService>(iCache);
+        services.addService(iCache);
     }
 }
 

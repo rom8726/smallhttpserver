@@ -189,7 +189,7 @@ namespace Network {
     //----------------------------------------------------------------------
     void HttpServer::stop() {
         m_isRun = false;
-        sleep(2);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 
     //----------------------------------------------------------------------

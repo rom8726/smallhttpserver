@@ -22,17 +22,20 @@ namespace Common {
             static AppServices& getInstance();
             void clear() { m_services.clear(); }
 
-            template <class T>
+            //template <class T>
             void addService(ServicePtr servicePtr) {
-                static_assert(std::is_base_of<IService, T>::value, "AppServices::addService: class T not derived from IService");
-                m_services[T::getName()] = servicePtr;
+                //static_assert(std::is_base_of<IService, T>::value, "AppServices::addService: class T not derived from IService");
+                //m_services[T::getName()] = servicePtr;
+                const char* name = servicePtr.get()->getTypeName();
+                m_services[std::string(name)] = servicePtr;
             }
 
             template <class T>
             T* getService() {
                 static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
 
-                const std::string name = T::getName();
+                //const std::string name = T::getName();
+                const std::string name(T::s_getTypeName());
                 if (m_services.find(name) != m_services.end()) {
                     IService* srv = m_services[name].get();
                     if (!srv->isInitialized()) {

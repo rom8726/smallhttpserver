@@ -21,7 +21,10 @@ namespace Common {
             virtual bool init () = 0;
             virtual bool isInitialized() { return m_isInitialized; }
 
-            static const std::string getName() { return std::string(""); }
+            //static const std::string getName() { return std::string(""); }
+
+            static const char* s_getTypeName() { return typeid(IService).name(); }
+            virtual const char* getTypeName() = 0;/*{ return s_getTypeName(); }*/
 
         protected:
             virtual bool setInitialized(bool initFlag) { m_isInitialized = initFlag; }

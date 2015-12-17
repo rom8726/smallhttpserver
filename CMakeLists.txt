@@ -20,6 +20,8 @@ set(SOURCE_FILES
         src/tools.cpp
 )
 
+# set defines for proj_defs.h
+set(DAEMON_NAME smallhttpserver)
 set(USE_BOOST_FILEPATH false) # true/false, for getConfigPath() in main.cpp
 set(ADD_MY_BOOST_LIBS)
 if (USE_BOOST_FILEPATH)
