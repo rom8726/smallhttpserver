@@ -26,7 +26,7 @@ namespace Common {
             void addService(ServicePtr servicePtr) {
                 //static_assert(std::is_base_of<IService, T>::value, "AppServices::addService: class T not derived from IService");
                 //m_services[T::getName()] = servicePtr;
-                const char* name = servicePtr.get()->getTypeName();
+                const char* name = servicePtr.get()->getName();
                 m_services[std::string(name)] = servicePtr;
             }
 
@@ -34,8 +34,7 @@ namespace Common {
             T* getService() {
                 static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
 
-                //const std::string name = T::getName();
-                const std::string name(T::s_getTypeName()); // or name(typeid(T).name());
+                const std::string name(T::s_getName());
                 if (m_services.find(name) != m_services.end()) {
                     IService* srv = m_services[name].get();
                     if (!srv->isInitialized()) {

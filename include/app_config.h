@@ -22,9 +22,8 @@ namespace Common {
             virtual ~AppConfig() { }
 
             bool init();
-            //static const std::string getName() { return std::string("config"); }
-            static const char* s_getTypeName() { return typeid(AppConfig).name(); }
-            virtual const char* getTypeName() { return s_getTypeName(); }
+            static const char* s_getName() { return "config"; }
+            virtual const char* getName() { return s_getName(); }
 
             const std::string& getServerIp() const {
                 return m_srvIp;

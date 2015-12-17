@@ -19,9 +19,8 @@ namespace Common {
 
             bool init();
             bool init(uint16_t memcachedSrvPort);
-            //static const std::string getName() { return std::string("cache"); }
-            static const char* s_getTypeName() { return typeid(CacheService).name(); }
-            virtual const char* getTypeName() { return s_getTypeName(); }
+            static const char* s_getName() { return "cache"; }
+            virtual const char* getName() { return s_getName(); }
 
             bool store(const char* key, size_t key_len, const char* value, size_t val_len);
             char* load(const char* key, size_t key_len, size_t* return_value_length);
