@@ -25,7 +25,7 @@ set(DAEMON_NAME smallhttpserver)
 set(USE_BOOST_FILEPATH false) # true/false, for getConfigPath() in main.cpp
 set(ADD_MY_BOOST_LIBS)
 if (USE_BOOST_FILEPATH)
-    # list of used boost libs
+    # list of used boost libs for filepath
     set(ADD_MY_BOOST_LIBS filesystem system)
 endif ()
 
