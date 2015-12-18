@@ -38,7 +38,8 @@ namespace System {
         char buf[255];
         sprintf(buf, "%d", (int) getpid());
         r = write(fd, buf, strlen(buf));
-        return (r == -1) ? false : true;
+
+        return (r != -1) ? false : true;
     }
 
     //----------------------------------------------------------------------
@@ -67,7 +68,8 @@ namespace System {
         char buf[255];
         sprintf(buf, "%d", pid);
         r = write(fd, buf, strlen(buf));
-        return (r == -1) ? false : true;
+
+        return (r != -1) ? false : true;
     }
 
     //----------------------------------------------------------------------
