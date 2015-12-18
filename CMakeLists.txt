@@ -21,7 +21,7 @@ set(SOURCE_FILES
 )
 
 # set defines for proj_defs.h
-set(DAEMON_NAME smallhttpserver)
+set(DAEMON_NAME ${CMAKE_PROJECT_NAME}) # or set name what you want
 set(USE_BOOST_FILEPATH false) # true/false, for getConfigPath() in main.cpp
 set(ADD_MY_BOOST_LIBS)
 if (USE_BOOST_FILEPATH)
@@ -45,10 +45,10 @@ if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 
     # executable
-    add_executable(smallhttpserver ${SOURCE_FILES})
+    add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
 
     # libraries
-    target_link_libraries(smallhttpserver LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread -lmemcached)
+    target_link_libraries(${CMAKE_PROJECT_NAME} LINK_PUBLIC ${Boost_LIBRARIES} -levent -lpthread -lmemcached)
 else()
     # boost not found
     message(FATAL_ERROR "Boost library not found, CMake will exit.")

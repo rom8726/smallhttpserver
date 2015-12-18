@@ -2,6 +2,7 @@
 #define __PROJ_DEFS_H__
 
 #define USE_BOOST_FILEPATH @USE_BOOST_FILEPATH@
+#define PROJECT_NAME "@CMAKE_PROJECT_NAME@"
 #define DAEMON_NAME "@DAEMON_NAME@"
 
 #endif // __PROJ_DEFS_H__

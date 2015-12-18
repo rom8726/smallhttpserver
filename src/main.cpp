@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
                 exit(0);
             } else {
 
-                consoleLogger.err("usage: ./" + std::string(DAEMON_NAME) + " console|daemon|stop|reconfig");
+                consoleLogger.err("usage: ./" + std::string(PROJECT_NAME) + " console|daemon|stop|reconfig");
                 exit(0);
             }
         }
