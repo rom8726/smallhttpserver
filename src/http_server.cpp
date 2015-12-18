@@ -192,6 +192,7 @@ namespace Network {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
+    //----------------------------------------------------------------------
     void HttpServer::wait() {
         while (!this->isAllThreadsDone()) {
             std::this_thread::yield();
@@ -202,7 +203,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    bool HttpServer::isAllThreadsDone() const {
+    inline bool HttpServer::isAllThreadsDone() const {
         //if (m_workingThreadsCnt > 0) {
         //    return true;
         //}

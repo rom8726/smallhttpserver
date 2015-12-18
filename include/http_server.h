@@ -32,7 +32,7 @@ namespace Network {
 
         void stop();
         void wait();
-        bool isAllThreadsDone() const;
+        inline bool isAllThreadsDone() const;
 
     private:
 
