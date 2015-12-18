@@ -200,8 +200,10 @@ namespace Network {
 
     //----------------------------------------------------------------------
     void HttpServer::stop() {
-        m_isRun = false;
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (m_isRun) {
+            m_isRun = false;
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
     }
 
     //----------------------------------------------------------------------
