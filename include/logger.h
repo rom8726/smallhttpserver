@@ -26,7 +26,7 @@ namespace Common {
 
         static std::string itos(int data) {
             char buf[10];
-            memset(buf, 0, 10);
+            memset(buf, 0, sizeof(buf));
             sprintf(buf, "%d", data);
             return buf;
         }
