@@ -24,7 +24,7 @@ namespace Common {
             virtual const char* getTypeName() = 0; /*{ return typeid(IService).name(); }*/
 
         protected:
-            virtual bool setInitialized(bool initFlag) { m_isInitialized = initFlag; }
+            virtual void setInitialized(bool initFlag) { m_isInitialized = initFlag; }
 
         private:
             bool m_isInitialized;

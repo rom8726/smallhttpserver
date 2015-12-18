@@ -33,12 +33,12 @@ namespace System {
             throw SystemException("can`t lock PID file");
         }
 
-        int r = 0;
+        ssize_t r = 0;
         r = ftruncate(fd, 0);
         char buf[255];
         sprintf(buf, "%d", (int) getpid());
         r = write(fd, buf, strlen(buf));
-        return 0;
+        return (r == -1) ? false : true;
     }
 
     //----------------------------------------------------------------------
@@ -62,12 +62,12 @@ namespace System {
             throw SystemException("can`t lock PID file");
         }
 
-        int r = 0;
+        ssize_t r = 0;
         r = ftruncate(fd, 0);
         char buf[255];
         sprintf(buf, "%d", pid);
         r = write(fd, buf, strlen(buf));
-        return 0;
+        return (r == -1) ? false : true;
     }
 
     //----------------------------------------------------------------------
