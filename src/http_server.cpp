@@ -219,9 +219,9 @@ namespace Network {
     //----------------------------------------------------------------------
     inline bool HttpServer::isAllThreadsDone() const {
         //if (m_workingThreadsCnt > 0) {
-        //    return true;
+        //    return false;
         //}
-        //return false;
+        //return true;
 
         return m_isAllThreadsDone;
     }
