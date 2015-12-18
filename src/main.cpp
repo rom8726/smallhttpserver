@@ -3,6 +3,7 @@
 #include "proj_defs.h"
 
 #include <iostream>
+#include <sstream>
 #include <null_logger.h>
 #include <syslog_logger.h>
 

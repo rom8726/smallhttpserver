@@ -2,7 +2,6 @@
 
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 #include <signal.h>
 
 namespace System {
@@ -39,7 +38,7 @@ namespace System {
         sprintf(buf, "%d", (int) getpid());
         r = write(fd, buf, strlen(buf));
 
-        return (r != -1) ? false : true;
+        return (r == -1) ? true : false;
     }
 
     //----------------------------------------------------------------------
@@ -69,7 +68,7 @@ namespace System {
         sprintf(buf, "%d", pid);
         r = write(fd, buf, strlen(buf));
 
-        return (r != -1) ? false : true;
+        return (r == -1) ? true : false;
     }
 
     //----------------------------------------------------------------------
