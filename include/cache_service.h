@@ -19,7 +19,7 @@ namespace Common {
 
             bool init();
             bool init(uint16_t memcachedSrvPort);
-            virtual const char* getTypeName() { return typeid(CacheService).name(); }
+            virtual inline const char* getTypeName() { return typeid(CacheService).name(); }
 
             bool store(const char* key, size_t key_len, const char* value, size_t val_len);
             char* load(const char* key, size_t key_len, size_t* return_value_length);
