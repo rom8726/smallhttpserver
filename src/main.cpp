@@ -40,37 +40,46 @@ int main(int argc, char* argv[]) {
 
         if (!strcmp(argv[1], "console")) {
             isDaemon = false;
-
-        } else if (!strcmp(argv[1], "stop")) {
-            ConsoleLogger consoleLogger;
-            consoleLogger.log("Stopping daemon...");
-
-            Demonizer demonizer;
-            demonizer.setName(DAEMON_NAME);
-            try {
-                demonizer.stopWorker();
-            } catch (const SystemException& ex) {
-                consoleLogger.err("Stop exception :" + std::string(ex.what()));
-                exit(1);
-            }
-            consoleLogger.log("Stop OK");
-            exit(0);
-
-        } else if (!strcmp(argv[1], "reconfig")) {
+        } else if(!strcmp(argv[1], "daemon")) {
+            //isDaemon = true;
+        } else {
 
             ConsoleLogger consoleLogger;
-            consoleLogger.log("Sending reconfig signal to daemon...");
 
-            Demonizer demonizer;
-            demonizer.setName(DAEMON_NAME);
-            try {
-                demonizer.sendUserSignalToWorker();
-            } catch (const SystemException& ex) {
-                consoleLogger.err("send signal exception :" + std::string(ex.what()));
-                exit(1);
+            if (!strcmp(argv[1], "stop")) {
+
+                consoleLogger.log("Stopping daemon...");
+
+                Demonizer demonizer;
+                demonizer.setName(DAEMON_NAME);
+                try {
+                    demonizer.stopWorker();
+                } catch (const SystemException &ex) {
+                    consoleLogger.err("Stop exception :" + std::string(ex.what()));
+                    exit(1);
+                }
+                consoleLogger.log("Stop OK");
+                exit(0);
+
+            } else if (!strcmp(argv[1], "reconfig")) {
+
+                consoleLogger.log("Sending reconfig signal to daemon...");
+
+                Demonizer demonizer;
+                demonizer.setName(DAEMON_NAME);
+                try {
+                    demonizer.sendUserSignalToWorker();
+                } catch (const SystemException &ex) {
+                    consoleLogger.err("send signal exception :" + std::string(ex.what()));
+                    exit(1);
+                }
+                consoleLogger.log("Send OK");
+                exit(0);
+            } else {
+
+                consoleLogger.err("usage: ./" + std::string(DAEMON_NAME) + " console|daemon|stop|reconfig");
+                exit(0);
             }
-            consoleLogger.log("Send OK");
-            exit(0);
         }
     }
 
@@ -147,15 +156,11 @@ int workFunc() {
                       }
         ));
 
-        if (config->isDaemon()) {
-            // TODO:
-            while (!server->isAllThreadsDone()) {
-                std::this_thread::yield();
-            }
-        } else {
+        if (!config->isDaemon()) {
             std::cin.get();
             server->stop();
         }
+        server->wait();
     }
     catch (std::exception const &e) {
         logger->err(e.what());
@@ -173,9 +178,7 @@ int workStopFunc() {
     logger->log("Stopping server...");
 
     server->stop();
-    while (!server->isAllThreadsDone()) {
-        std::this_thread::yield();
-    }
+    server->wait();
 
     server.reset();
 

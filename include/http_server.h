@@ -31,6 +31,7 @@ namespace Network {
                    std::size_t maxBodySize = MaxBodySize);
 
         void stop();
+        void wait();
         bool isAllThreadsDone() const;
 
     private:
