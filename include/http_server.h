@@ -25,6 +25,8 @@ namespace Network {
         };
 
         HttpServer();
+        ~HttpServer();
+
         void initAndStart(const std::string &address, uint16_t port,
                           uint16_t threadCount, const OnRequestFunc &onRequest,
                           const MethodPool &allowedMethodsArg = {HttpRequestType::GET},
