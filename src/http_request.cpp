@@ -11,7 +11,7 @@ using namespace Common::Services;
 namespace Network {
 
     //----------------------------------------------------------------------
-    void HttpRequest::initUri() const {
+    void HttpRequest::initUri() const throw(HttpRequestException) {
 
         if (m_uri == nullptr) {
             auto *This = const_cast<HttpRequest *>(this);
@@ -21,7 +21,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::initInputBuf() const {
+    void HttpRequest::initInputBuf() const throw(HttpRequestException) {
 
         if (m_inputBuf == nullptr) {
             auto *This = const_cast<HttpRequest *>(this);
@@ -31,7 +31,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::initOutputBuf() const {
+    void HttpRequest::initOutputBuf() const throw(HttpRequestException) {
 
         if (m_outputBuf == nullptr) {
             auto *This = const_cast<HttpRequest *>(this);
@@ -41,7 +41,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::initInputHeaders() const {
+    void HttpRequest::initInputHeaders() const throw(HttpRequestException) {
 
         if (m_inputHeaders == nullptr) {
             auto *This = const_cast<HttpRequest *>(this);
@@ -51,7 +51,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::initOutputHeaders() const {
+    void HttpRequest::initOutputHeaders() const throw(HttpRequestException) {
 
         if (m_outputHeaders == nullptr) {
             auto *This = const_cast<HttpRequest *>(this);
@@ -61,7 +61,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    HttpRequestType HttpRequest::getRequestType() const {
+    HttpRequestType HttpRequest::getRequestType() const throw(HttpRequestException) {
 
         switch (evhttp_request_get_command(m_request)) {
             case EVHTTP_REQ_GET :
@@ -101,39 +101,37 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    bool HttpRequest::getInputContent(void *buf, std::size_t len, bool remove) const {
+    bool HttpRequest::getInputContent(void *buf, std::size_t len, bool remove) const throw(HttpRequestException) {
 
         if (len > this->getInputContentSize())
             throw HttpRequestException("Required length of data buffer more than exists.");
 
         if (remove) {
-//            if (evbuffer_remove(m_inputBuf, buf, len) == -1)
-//                throw HttpRequestException("Failed to get input data.");
-//            return;
-            return evbuffer_remove(m_inputBuf, buf, len);
+            if (evbuffer_remove(m_inputBuf, buf, len) == -1)
+                throw HttpRequestException("Failed to get input data.");
+            return true;
         }
 
-//        if (evbuffer_copyout(m_inputBuf, buf, len) == -1)
-//            throw HttpRequestException("Failed to get input data.");
-        return evbuffer_copyout(m_inputBuf, buf, len);
+        if (evbuffer_copyout(m_inputBuf, buf, len) == -1)
+            throw HttpRequestException("Failed to get input data.");
+        return true;
     }
 
     //----------------------------------------------------------------------
-    bool HttpRequest::getOutputContent(void *buf, std::size_t len, bool remove) const {
+    bool HttpRequest::getOutputContent(void *buf, std::size_t len, bool remove) const throw(HttpRequestException) {
 
         if (len > this->getOutputContentSize())
             throw HttpRequestException("Required length of data buffer more than exists.");
 
         if (remove) {
-//            if (evbuffer_remove(m_outputBuf, buf, len) == -1)
-//                throw HttpRequestException("Failed to get output data.");
-//            return;
-            return evbuffer_remove(m_outputBuf, buf, len);
+            if (evbuffer_remove(m_outputBuf, buf, len) == -1)
+                throw HttpRequestException("Failed to get output data.");
+            return true;
         }
 
-//        if (evbuffer_copyout(m_outputBuf, buf, len) == -1)
-//            throw HttpRequestException("Failed to get output data.");
-        return evbuffer_copyout(m_outputBuf, buf, len);
+        if (evbuffer_copyout(m_outputBuf, buf, len) == -1)
+            throw HttpRequestException("Failed to get output data.");
+        return true;
     }
 
     //----------------------------------------------------------------------
@@ -167,7 +165,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::setResponseAttr(const std::string &name, const std::string &val) {
+    void HttpRequest::setResponseAttr(const std::string &name, const std::string &val) throw(HttpRequestException) {
 
         this->initOutputHeaders();
 //        evhttp_remove_header(m_request->output_headers, name.c_str());
@@ -181,7 +179,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::setResponseString(const std::string &str) {
+    void HttpRequest::setResponseString(const std::string &str) throw(HttpRequestException) {
 
         this->initOutputBuf();
         if (evbuffer_add_printf(m_outputBuf, str.c_str(), "") == -1)
@@ -189,7 +187,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::setResponseBuf(const void *data, std::size_t bytes) {
+    void HttpRequest::setResponseBuf(const void *data, std::size_t bytes) throw(HttpRequestException) {
 
         this->initOutputBuf();
         void *newData = ::operator new(bytes);
@@ -201,7 +199,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    void HttpRequest::setResponseFile(const std::string &fileName) {
+    void HttpRequest::setResponseFile(const std::string &fileName) throw(HttpRequestException) {
 
         // Try to load file from cache
         AppConfig* config = AppServices::getInstance().getService<AppConfig>();

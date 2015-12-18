@@ -24,7 +24,7 @@ namespace Common {
         }
 
         //----------------------------------------------------------------------
-        bool AppConfig::init() {
+        bool AppConfig::init() throw(std::runtime_error) {
 
             if (this->isInitialized()) return true;
 

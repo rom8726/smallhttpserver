@@ -21,7 +21,7 @@ namespace Common {
             AppConfig(const std::string& pathToConfig);
             virtual ~AppConfig() { }
 
-            bool init();
+            bool init() throw(std::runtime_error);
             virtual inline const char* getTypeName() { return typeid(AppConfig).name(); }
 
             const std::string& getServerIp() const {

@@ -136,26 +136,27 @@ int workFunc() {
 
     try {
         using namespace Network;
-        server.reset(new HttpServer(config->getServerIp(), config->getServerPort(), config->getThreadsCnt(),
+        server.reset(new HttpServer);
+        server->initAndStart(config->getServerIp(), config->getServerPort(), config->getThreadsCnt(),
 
-                      [&](IHttpRequestPtr req) {
-                          std::string path = req->getPath();
-                          path = config->getRootDir() + path + (path == "/" ? config->getDefaultPage() : std::string());
+             [&](IHttpRequestPtr req) {
+                 std::string path = req->getPath();
+                 path = config->getRootDir() + path + (path == "/" ? config->getDefaultPage() : std::string());
 
-                          req->setResponseAttr("Server", "smallhttpserver");
-                          req->setResponseAttr("Content-Type", config->getContentTypeFromFileName(path));
-                          req->setResponseFile(path);
+                 req->setResponseAttr("Server", PROJECT_NAME);
+                 req->setResponseAttr("Content-Type", config->getContentTypeFromFileName(path));
+                 req->setResponseFile(path);
 
-                          if (config->isLogging()) {
-                              std::stringstream ss;
-                              ss << "path: " << path << std::endl
-                              << "host: "
-                              << req->getHeaderAttr("host") << std::endl;
+                 if (config->isLogging()) {
+                     std::stringstream ss;
+                     ss << "path: " << path << std::endl
+                     << "host: "
+                     << req->getHeaderAttr("host") << std::endl;
 
-                              logger->log(ss.str());
-                          }
-                      }
-        ));
+                     logger->log(ss.str());
+                 }
+             }
+        );
 
         if (!config->isDaemon()) {
             std::cin.get();

@@ -29,7 +29,7 @@ namespace Common {
         }
 
         //----------------------------------------------------------------------
-        bool CacheService::init() {
+        bool CacheService::init() throw(std::runtime_error) {
 
             if (this->isInitialized()) return true;
 
@@ -72,9 +72,9 @@ namespace Common {
             rc = memcached_set(m_memcInst, key, key_len, value, val_len, (time_t) 0, (uint32_t) 0);
 
             if (rc != MEMCACHED_SUCCESS) {
-//                std::stringstream ss("");
-//                ss << "Couldn't store key: " << memcached_strerror(m_memcInst, rc);
-//                throw std::runtime_error(ss.str());
+                //std::stringstream ss("");
+                //ss << "Couldn't store key: " << memcached_strerror(m_memcInst, rc);
+                //throw std::runtime_error(ss.str());
                 return false;
             }
 

@@ -17,7 +17,7 @@ namespace Common {
             CacheService(uint16_t memcachedSrvPort);
             ~CacheService();
 
-            bool init();
+            bool init() throw(std::runtime_error) ;
             bool init(uint16_t memcachedSrvPort);
             virtual inline const char* getTypeName() { return typeid(CacheService).name(); }
 

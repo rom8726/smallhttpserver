@@ -24,12 +24,12 @@ namespace Network {
             MaxHeaderSize = static_cast<std::size_t>(-1), MaxBodySize = MaxHeaderSize
         };
 
-        HttpServer(const std::string &address, uint16_t port,
-                   uint16_t threadCount, const OnRequestFunc &onRequest,
-                   const MethodPool &allowedMethodsArg = {HttpRequestType::GET},
-                   std::size_t maxHeadersSize = MaxHeaderSize,
-                   std::size_t maxBodySize = MaxBodySize);
-
+        HttpServer();
+        void initAndStart(const std::string &address, uint16_t port,
+                          uint16_t threadCount, const OnRequestFunc &onRequest,
+                          const MethodPool &allowedMethodsArg = {HttpRequestType::GET},
+                          std::size_t maxHeadersSize = MaxHeaderSize,
+                          std::size_t maxBodySize = MaxBodySize) throw(HttpServerException);
         void stop();
         void wait();
         inline bool isAllThreadsDone() const;
@@ -44,9 +44,9 @@ namespace Network {
         typedef std::vector<ThreadPtr> ThreadsPool;
         ThreadsPool m_threadsPool;
 
-        volatile bool m_isRun = true;
+        volatile bool m_isRun = false;
         volatile bool m_isAllThreadsDone = false;
-        Common::BoolFlagInvertor m_isRunInvertor;
+        //Common::BoolFlagInvertor m_isRunInvertor;
 
         std::atomic_int m_workingThreadsCnt;
     };

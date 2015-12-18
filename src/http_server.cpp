@@ -17,7 +17,7 @@ namespace Network {
     };
 
     //----------------------------------------------------------------------
-    void onRawRequest(evhttp_request *request, void *prm) {
+    void onRawRequest(evhttp_request *request, void *prm) throw(HttpRequestException) {
         try {
             auto pRequest = std::make_shared<HttpRequest>(request);
             auto *reqPrm = reinterpret_cast<RawRequestCallbackParams *>(prm);
@@ -59,7 +59,7 @@ namespace Network {
     }
 
     //----------------------------------------------------------------------
-    int httpRequestTypeToAllowedMethod(const HttpRequestType &type) {
+    int httpRequestTypeToAllowedMethod(const HttpRequestType &type) throw(HttpRequestException) {
         switch (type) {
             case HttpRequestType::GET :
                 return EVHTTP_REQ_GET;
@@ -78,13 +78,19 @@ namespace Network {
     //----------------------------------------------------------------------
     //------------------------------SERVER----------------------------------
     //----------------------------------------------------------------------
-    HttpServer::HttpServer(const std::string &address, uint16_t port,
+    HttpServer::HttpServer()
+            //: m_isRunInvertor(&m_isRun)
+    {
+    }
+
+    //----------------------------------------------------------------------
+    void HttpServer::initAndStart(const std::string &address, uint16_t port,
                            uint16_t threadCount, const OnRequestFunc &onRequest,
                            const MethodPool &allowedMethodsArg,
-                           std::size_t maxHeadersSize, std::size_t maxBodySize)
-            : m_isRunInvertor(&m_isRun)
+                           std::size_t maxHeadersSize, std::size_t maxBodySize) throw(HttpServerException)
     {
 
+        m_isRun = true;
         m_workingThreadsCnt = 0;
         static unsigned short s_threadId = 0;
         s_threadId = 0;
