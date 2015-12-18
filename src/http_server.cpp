@@ -98,7 +98,7 @@ namespace Network {
     {
 
         m_isRun = true;
-        m_workingThreadsCnt = 0;
+        m_workingNowThreadsCnt = 0;
         static unsigned short s_threadId = 0;
         s_threadId = 0;
 
@@ -120,7 +120,7 @@ namespace Network {
                 reqPrm.func = onRequest;
                 reqPrm.isInProcess = &processRequest;
                 reqPrm.threadId = thrId;
-                ++m_workingThreadsCnt;
+                ++m_workingNowThreadsCnt;
 
                 typedef std::unique_ptr<event_base, decltype(&event_base_free)> EventBasePtr;
                 EventBasePtr eventBasePtr(event_base_new(), &event_base_free);
@@ -170,8 +170,8 @@ namespace Network {
             }
 
             AppServices::getLogger()->log("Stopping thread #" + std::to_string(thrId));
-            --m_workingThreadsCnt;
-            if (m_workingThreadsCnt == 0) {
+            --m_workingNowThreadsCnt;
+            if (m_workingNowThreadsCnt == 0) {
                 m_isAllThreadsDone = true;
             }
         };

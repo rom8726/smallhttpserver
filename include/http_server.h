@@ -50,7 +50,7 @@ namespace Network {
         volatile bool m_isAllThreadsDone = false;
         //Common::BoolFlagInvertor m_isRunInvertor;
 
-        std::atomic_int m_workingThreadsCnt;
+        std::atomic_int m_workingNowThreadsCnt;
     };
 
 }
