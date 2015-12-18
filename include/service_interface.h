@@ -19,7 +19,7 @@ namespace Common {
             {}
 
             virtual bool init () = 0;
-            virtual bool isInitialized() { return m_isInitialized; }
+            virtual inline bool isInitialized() { return m_isInitialized; }
 
             virtual const char* getTypeName() = 0; /*{ return typeid(IService).name(); }*/
 

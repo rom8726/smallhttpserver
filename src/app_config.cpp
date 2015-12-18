@@ -11,15 +11,15 @@ namespace Common {
 
         //----------------------------------------------------------------------
         AppConfig::AppConfig()
-            : m_isDaemon(false), m_isLogging(false),
-              m_isCachingEnabled(false), m_pathToConfig("./config.json")
+            : m_pathToConfig("./config.json"), m_isLogging(false),
+              m_isCachingEnabled(false), m_isDaemon(false)
         {
         }
 
         //----------------------------------------------------------------------
         AppConfig::AppConfig(const std::string& pathToConfig)
-            : m_isDaemon(false), m_isLogging(false),
-              m_isCachingEnabled(false), m_pathToConfig(pathToConfig)
+            : m_pathToConfig(pathToConfig), m_isLogging(false),
+              m_isCachingEnabled(false), m_isDaemon(false)
         {
         }
 

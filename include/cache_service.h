@@ -25,8 +25,8 @@ namespace Common {
             char* load(const char* key, size_t key_len, size_t* return_value_length);
 
         private:
-            memcached_server_st* m_memcSrvs;
             memcached_st* m_memcInst;
+            memcached_server_st* m_memcSrvs;
             uint16_t m_memcachedSrvPort;
         };
     }
