@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <stdio.h>
+#include <string.h>
 
 namespace Common {
 
@@ -25,6 +26,7 @@ namespace Common {
 
         static std::string itos(int data) {
             char buf[10];
+            memset(buf, 0, 10);
             sprintf(buf, "%d", data);
             return buf;
         }

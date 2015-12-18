@@ -9,7 +9,6 @@
 #include <execinfo.h>
 #include <wait.h>
 
-using namespace std;
 using namespace Common;
 
 namespace System {
@@ -38,7 +37,7 @@ namespace System {
         char **messages;
         (void) si;
 
-        sysLogger.log("Caught signal:" + string(strsignal(sig)));
+        sysLogger.log("Caught signal:" + std::string(strsignal(sig)));
 
         if (sig == SIGUSR1) {
             sysLogger.log("Received user signal.");
@@ -267,9 +266,6 @@ namespace System {
                     break;
                 }
             }
-
-            //close all
-            //	SenderDaemonStopWork() ;
         } else {
             sysLogger.log("Create work thread failed");
         }
@@ -313,7 +309,7 @@ namespace System {
             }
             need_start = 1;
             if (pid == -1) {
-                sysLogger.log("Monitor: fork failed with " + string(strerror(errno)));
+                sysLogger.log("Monitor: fork failed with " + std::string(strerror(errno)));
             } else if (!pid) {
                 //we are child
                 status = this->workProc();
@@ -341,7 +337,7 @@ namespace System {
                     kill(pid, SIGUSR1); //resend signal
                     need_start = 0; //don't restart
                 } else {
-                    sysLogger.log("Monitor: signal " + string(strsignal(siginfo.si_signo)));
+                    sysLogger.log("Monitor: signal " + std::string(strsignal(siginfo.si_signo)));
                     //kill child
                     kill(pid, SIGTERM);
                     status = 0;
