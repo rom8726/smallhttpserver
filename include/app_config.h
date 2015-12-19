@@ -7,7 +7,7 @@
 #include <string>
 #include <memory>
 #include <unordered_map>
-//#include <map>
+
 
 namespace Common {
 
@@ -91,7 +91,6 @@ namespace Common {
             bool m_isCachingEnabled;
             bool m_isDaemon;
 
-            //std::map
             std::unordered_map<std::string, std::string> m_contentTypes;
         };
     }
