@@ -29,7 +29,7 @@ namespace Common {
 
             //----------------------------------------------------------------------
             template <class T>
-            T* getService() throw(std::runtime_error) {
+            const T* getService() throw(std::runtime_error) {
                 static_assert(std::is_base_of<IService, T>::value, "AppServices::getService: class T not derived from IService");
 
                 const std::string name(typeid(T).name());

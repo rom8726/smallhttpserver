@@ -17,12 +17,12 @@ namespace Common {
             CacheService(uint16_t memcachedSrvPort);
             ~CacheService();
 
-            bool init() throw(std::runtime_error) ;
+            bool init() throw(std::runtime_error);
             bool init(uint16_t memcachedSrvPort);
-            virtual inline const char* getTypeName() { return typeid(CacheService).name(); }
+            virtual inline const char* getTypeName() const { return typeid(CacheService).name(); }
 
-            bool store(const char* key, size_t key_len, const char* value, size_t val_len);
-            char* load(const char* key, size_t key_len, size_t* return_value_length);
+            bool store(const char* key, size_t key_len, const char* value, size_t val_len) const;
+            char* load(const char* key, size_t key_len, size_t* return_value_length) const;
 
         private:
             memcached_st* m_memcInst;

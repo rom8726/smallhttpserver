@@ -67,7 +67,7 @@ namespace Common {
         }
 
         //----------------------------------------------------------------------
-        bool CacheService::store(const char* key, size_t key_len, const char* value, size_t val_len) {
+        bool CacheService::store(const char* key, size_t key_len, const char* value, size_t val_len) const {
             memcached_return rc;
             rc = memcached_set(m_memcInst, key, key_len, value, val_len, (time_t) 0, (uint32_t) 0);
 
@@ -82,7 +82,7 @@ namespace Common {
         }
 
         //----------------------------------------------------------------------
-        char* CacheService::load(const char* key, size_t key_len, size_t* return_value_length) {
+        char* CacheService::load(const char* key, size_t key_len, size_t* return_value_length) const {
             uint32_t flags;
             memcached_return rc;
 

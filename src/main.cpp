@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
 
     initServices(isDaemon);
     AppServices& services = AppServices::getInstance();
-    AppConfig* config = services.getService<AppConfig>();
+    const AppConfig* config = services.getService<AppConfig>();
 
     if (!config->isLogging()) {// log off
         AppServices::setLogger(LoggerPtr(new NullLogger));
@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 int workFunc() {
 
     AppServices& services = AppServices::getInstance();
-    AppConfig* config = services.getService<AppConfig>();
+    const AppConfig* config = services.getService<AppConfig>();
     LoggerPtr& logger = AppServices::getLogger();
     logger->log("workFunc start");
 
@@ -198,7 +198,7 @@ int workRereadConfigFunc() {
     initServices(true);
 
     AppServices& services = AppServices::getInstance();
-    AppConfig* config = services.getService<AppConfig>();
+    const AppConfig* config = services.getService<AppConfig>();
     if (!config->isLogging()) {
         AppServices::setLogger(LoggerPtr(new NullLogger));
     }
