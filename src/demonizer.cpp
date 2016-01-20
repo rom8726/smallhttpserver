@@ -213,10 +213,10 @@ namespace System {
         sigact.sa_sigaction = signal_handler;
         sigemptyset(&sigact.sa_mask);
 
-        sigaction(SIGFPE, &sigact, 0); //FPU
-        sigaction(SIGILL, &sigact, 0); // wrong instruction
-        sigaction(SIGSEGV, &sigact, 0); //segfault
-        sigaction(SIGBUS, &sigact, 0); // bus memory error
+        sigaction(SIGFPE, &sigact, 0);
+        sigaction(SIGILL, &sigact, 0);  // wrong instruction
+        sigaction(SIGSEGV, &sigact, 0); // segfault
+        sigaction(SIGBUS, &sigact, 0);  // bus memory error
         sigaction(SIGTERM, &sigact, 0);
         sigaction(SIGUSR1, &sigact, 0);
 
