@@ -20,8 +20,6 @@ namespace System {
 
         void setup() throw(DemonizerException);
 
-        void stop() throw(DemonizerException);
-
         void stopWorker() throw(DemonizerException);
 
         void sendUserSignalToWorker() throw(DemonizerException);

@@ -173,21 +173,6 @@ namespace System {
     }
 
     //----------------------------------------------------------------------
-    void Demonizer::stop() throw(DemonizerException) {
-
-        //get pid from pid file of running daemon
-        int pid = SystemTools::findPID(this->getName());
-        //check running
-        if (pid == -1) {
-            sysLogger.log("Error. Daemon is not running");
-            throw DemonizerException("Daemon is not running");
-        } else {
-            //kill it
-            SystemTools::kill(pid);
-        }
-    }
-
-    //----------------------------------------------------------------------
     void Demonizer::stopWorker() throw(DemonizerException) {
 
         //get pid from pid file of running daemon
