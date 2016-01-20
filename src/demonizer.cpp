@@ -59,7 +59,7 @@ namespace System {
 #if __WORDSIZE == 64
         errorAddr = (void *) ((ucontext_t *) ptr)->uc_mcontext.gregs[REG_RIP];
 #else
-        errorAddr = (void*) ((ucontext_t*) ptr)->uc_mcontext.gregs[REG_EIP];
+        errorAddr = (void *) ((ucontext_t *) ptr)->uc_mcontext.gregs[REG_EIP];
 #endif
         //backtrace
         traceSize = backtrace(trace, 16);
