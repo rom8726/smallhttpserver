@@ -14,9 +14,9 @@ using namespace Common;
 namespace System {
 
     //----------------------------------------------------------------------
-    int (*Demonizer::m_sStartFunc)() = NULL;
-    int (*Demonizer::m_sStopFunc)() = NULL;
-    int (*Demonizer::m_sRereadCfgFun)() = NULL;
+    int (*Demonizer::ms_startFunc)() = NULL;
+    int (*Demonizer::ms_stopFunc)() = NULL;
+    int (*Demonizer::ms_rereadCfgFun)() = NULL;
     static SyslogLogger sysLogger;
 
     //----------------------------------------------------------------------
@@ -41,8 +41,8 @@ namespace System {
 
         if (sig == SIGUSR1) {
             sysLogger.log("Received user signal.");
-            if (m_sRereadCfgFun != NULL)
-                (*m_sRereadCfgFun)();
+            if (ms_rereadCfgFun != NULL)
+                (*ms_rereadCfgFun)();
 
             return;
         }
@@ -50,8 +50,8 @@ namespace System {
 
         if (sig == SIGTERM) {
             sysLogger.log("Received sigterm signal. Stopping...");
-            if (m_sStopFunc != NULL)
-                (*m_sStopFunc)();
+            if (ms_stopFunc != NULL)
+                (*ms_stopFunc)();
             exit(CHILD_NEED_TERMINATE);
         }
 
@@ -76,8 +76,8 @@ namespace System {
         }
         sysLogger.log("Stopped");
 
-        if (m_sStopFunc != NULL)
-            (*m_sStopFunc)();
+        if (ms_stopFunc != NULL)
+            (*ms_stopFunc)();
         //we need child restart
         exit(CHILD_NEED_RESTART);
     }
@@ -251,7 +251,7 @@ namespace System {
 
         sysLogger.log("Starting work process...");
         //start the threads
-        status = (*m_sStartFunc)();
+        status = (*ms_startFunc)();
         sysLogger.log("Start work process done");
 
         if (!status) {
@@ -260,8 +260,8 @@ namespace System {
 
                 if (signo == SIGUSR1) {
                     //reread config
-                    if (m_sRereadCfgFun != NULL)
-                        (*m_sRereadCfgFun)();
+                    if (ms_rereadCfgFun != NULL)
+                        (*ms_rereadCfgFun)();
                 } else {
                     break;
                 }
@@ -278,9 +278,9 @@ namespace System {
     void Demonizer::startWithMonitoring(int(*startFunc)(void),
                                         int(*stopFunc)(void), int(*rereadCfgFun)(void)) {
 
-        this->m_sStartFunc = startFunc;
-        this->m_sStopFunc = stopFunc;
-        this->m_sRereadCfgFun = rereadCfgFun;
+        this->ms_startFunc = startFunc;
+        this->ms_stopFunc = stopFunc;
+        this->ms_rereadCfgFun = rereadCfgFun;
 
         int pid = 0;
         int status = 0;

@@ -37,11 +37,11 @@ namespace System {
 
         int workProc();
 
-        static int (*m_sStartFunc)(void);
+        static int (*ms_startFunc)(void);
 
-        static int (*m_sStopFunc)(void);
+        static int (*ms_stopFunc)(void);
 
-        static int (*m_sRereadCfgFun)(void);
+        static int (*ms_rereadCfgFun)(void);
     protected:
         std::string name;
     };
