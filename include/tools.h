@@ -37,9 +37,7 @@ namespace System {
         static std::string calculateFilenameToStorePID(const std::string& processName);
 
         //check if the process already running
-        static bool checkRunningAndSavePID(const std::string& processName) throw(SystemException);
-
-        static bool checkRunningAndSavePID(const std::string& processName, int pid) throw(SystemException);
+        static bool checkRunningAndSavePID(const std::string& processName, int pid = -1) throw(SystemException);
 
         //find pid in pid file by given process
         static int findPID(const std::string& processName) throw(SystemException);

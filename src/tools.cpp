@@ -12,37 +12,12 @@ namespace System {
     }
 
     //----------------------------------------------------------------------
-    bool SystemTools::checkRunningAndSavePID(const std::string &processName) throw(SystemException) {
-        //get name
-        std::string pidFile = calculateFilenameToStorePID(processName);
-        //try to open file
-        int fd = open(pidFile.c_str(), O_RDWR | O_CREAT,
-                      S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-
-        if (fd < 0) {
-            throw SystemException("can`t open PID file " + pidFile);
-        }
-
-        //try to lock it
-        if (lockf(fd, F_TLOCK, 0)) {
-            if (errno == EACCES || errno == EAGAIN) {
-                close(fd);
-                return 1;// already locked - by another process instance
-            }
-            throw SystemException("can`t lock PID file");
-        }
-
-        ssize_t r = 0;
-        r = ftruncate(fd, 0);
-        char buf[255];
-        sprintf(buf, "%d", (int) getpid());
-        r = write(fd, buf, strlen(buf));
-
-        return (r == -1) ? true : false;
-    }
-
-    //----------------------------------------------------------------------
     bool SystemTools::checkRunningAndSavePID(const std::string &processName, int pid) throw(SystemException) {
+
+        if (pid == -1) {
+            pid = getpid();
+        }
+
         //get name
         std::string pidFile = calculateFilenameToStorePID(processName);
         //try to open file
