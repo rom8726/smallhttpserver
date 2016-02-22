@@ -1,6 +1,6 @@
 # README #
 
-Little HTTP-server for static content, based on libevent. Uses Boost library and memcached.
+Small HTTP-server for static content, based on libevent. Uses Boost library and memcached.
 
 ### What is this repository for? ###
 
