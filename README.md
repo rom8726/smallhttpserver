@@ -11,6 +11,7 @@ Small HTTP-server for static content, based on libevent. Uses Boost library and 
 ### How do I get set up? ###
 
 You need to install next packages (Ubuntu):
+
 Install CMake:
 http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
 
