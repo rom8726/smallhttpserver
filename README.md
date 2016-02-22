@@ -10,12 +10,21 @@ Small HTTP-server for static content, based on libevent. Uses Boost library and 
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+You need to install next packages (Ubuntu):
+Install CMake:
+http://askubuntu.com/questions/610291/how-to-install-cmake-3-2-on-ubuntu-14-04
+
+Install C++ Compiler:
+sudo apt-get install build-essential
+
+Install Boost library:
+sudo apt-get install libboost-serialization-dev
+
+Install Memcached:
+sudo apt-get install libmemcached-dev
+
+Install libevent:
+sudo apt-get install libevent-dev
 
 ### Contribution guidelines ###
 
