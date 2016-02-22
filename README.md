@@ -1,6 +1,6 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Little HTTP-server for static content, based on libevent. Uses Boost library and memcached.
 
 ### What is this repository for? ###
 
