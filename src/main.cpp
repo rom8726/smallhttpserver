@@ -1,51 +1,262 @@
 #include "http_server.h"
-#include "http_headers.h"
-#include "http_content_type.h"
+#include "demonizer.h"
+#include "proj_defs.h"
 
 #include <iostream>
 #include <sstream>
-#include <mutex>
+#include <null_logger.h>
+#include <syslog_logger.h>
 
-int main() {
-    char const srvAddress[] = "127.0.0.1";
-    std::uint16_t srvPort = 5555;
-    std::uint16_t srvThreadCount = 4;
-//    std::string const rootDir = "../test_content";
-    std::string const rootDir = "/home/roman/projects/cpp/learn-network/libevent_test_http_srv/test_content";
-    std::string const defaultPage = "index.html";
-    std::mutex mtx;
+#if USE_BOOST_FILEPATH
+#include <boost/filesystem.hpp>
+#else
+#ifdef __linux__
+#include <linux/limits.h>
+#else
+#define PATH_MAX 4096
+#endif
+#endif
 
-    try {
-        using namespace Network;
-        HttpServer server(srvAddress, srvPort, srvThreadCount,
-                       [&](IHttpRequestPtr req) {
-                           std::string path = req->getPath();
-                           path = rootDir + path + (path == "/" ? defaultPage : std::string());
+using namespace System;
+using namespace Common;
+using namespace Common::Services;
 
-                           {
-                               std::stringstream ioStream;
-                               ioStream << "path: " << path << std::endl
-                               << Http::Request::Header::Host::Name << ": "
-                               << req->getHeaderAttr(Http::Request::Header::Host::Value) << std::endl
-                               << Http::Request::Header::Referer::Name << ": "
-                               << req->getHeaderAttr(Http::Request::Header::Referer::Value) << std::endl;
 
-                               std::lock_guard<std::mutex> lock(mtx);
-                               std::cout << ioStream.str() << std::endl;
-                           }
+//----------------------------------------------------------------------
+int workFunc();
+int workStopFunc();
+int workRereadConfigFunc();
+std::string getConfigPath();
+void initServices(bool isDaemon, const char* pathToConfig = nullptr);
 
-                           req->setResponseAttr(Http::Response::Header::Server::Value, "MyTestServer");
-                           req->setResponseAttr(Http::Response::Header::ContentType::Value,
-                                                Http::Content::TypeFromFileName(path));
-                           req->setResponseFile(path);
-                       }
-        );
+static std::shared_ptr<Network::HttpServer> server(nullptr);
+static std::string gPathToConfig = getConfigPath();
 
-        std::cin.get();
+//----------------------------------------------------------------------
+int main(int argc, char* argv[]) {
+
+    bool isDaemon = true;
+
+    if (argc == 2) {
+
+        if (!strcmp(argv[1], "console")) {
+            isDaemon = false;
+        } else if(!strcmp(argv[1], "daemon")) {
+            //isDaemon = true;
+        } else {
+
+            ConsoleLogger consoleLogger;
+
+            if (!strcmp(argv[1], "stop")) {
+
+                consoleLogger.log("Stopping daemon...");
+
+                Demonizer demonizer;
+                demonizer.setName(DAEMON_NAME);
+                try {
+                    demonizer.stopWorker();
+                } catch (const SystemException &ex) {
+                    consoleLogger.err("Stop exception :" + std::string(ex.what()));
+                    exit(1);
+                }
+                consoleLogger.log("Stop OK");
+                exit(0);
+
+            } else if (!strcmp(argv[1], "reconfig")) {
+
+                consoleLogger.log("Sending reconfig signal to daemon...");
+
+                Demonizer demonizer;
+                demonizer.setName(DAEMON_NAME);
+                try {
+                    demonizer.sendUserSignalToWorker();
+                } catch (const SystemException &ex) {
+                    consoleLogger.err("send signal exception :" + std::string(ex.what()));
+                    exit(1);
+                }
+                consoleLogger.log("Send OK");
+                exit(0);
+            } else {
+
+                consoleLogger.err("usage: ./" + std::string(PROJECT_NAME) + " console|daemon|stop|reconfig");
+                exit(0);
+            }
+        }
     }
-    catch (std::exception const &e) {
-        std::cout << e.what() << std::endl;
+
+    initServices(isDaemon);
+    AppServices& services = AppServices::getInstance();
+    const AppConfig* config = services.getService<AppConfig>();
+
+    if (!config->isLogging()) {// log off
+        AppServices::setLogger(LoggerPtr(new NullLogger));
+    }
+
+    if (isDaemon) {
+        //demonize
+
+        //config->setDaemon(true);
+        std::cout << "Switch to daemon state now (see syslog for output)..." << std::endl;
+
+        if (config->isLogging()) {
+            AppServices::setLogger(LoggerPtr(new SyslogLogger()));
+        }
+
+        LoggerPtr& logger = AppServices::getLogger();
+
+        Demonizer demonizer;
+        demonizer.setName(DAEMON_NAME);
+        logger->setName(DAEMON_NAME);
+        logger->log("Setup daemon...");
+
+        try {
+            demonizer.setup();
+        } catch (const SystemException& ex) {
+            logger->err(ex.what());
+            exit(1);
+        }
+
+        logger->log("Start with monitoring...");
+        demonizer.startWithMonitoring(workFunc, workStopFunc, workRereadConfigFunc);
+    } else {
+        //no daemon
+        workFunc();
     }
 
     return 0;
+}
+
+//----------------------------------------------------------------------
+int workFunc() {
+
+    AppServices& services = AppServices::getInstance();
+    const AppConfig* config = services.getService<AppConfig>();
+    LoggerPtr& logger = AppServices::getLogger();
+    logger->log("workFunc start");
+
+    try {
+        using namespace Network;
+        server.reset(new HttpServer);
+        server->initAndStart(config->getServerIp(), config->getServerPort(), config->getThreadsCnt(),
+
+             [&](IHttpRequestPtr req) {
+                 std::string path = req->getPath();
+                 path = config->getRootDir() + path + (path == "/" ? config->getDefaultPage() : std::string());
+
+                 req->setResponseAttr("Server", PROJECT_NAME);
+                 req->setResponseAttr("Content-Type", config->getContentTypeFromFileName(path));
+                 req->setResponseFile(path);
+
+                 if (config->isLogging()) {
+                     std::stringstream ss;
+                     ss << "path: " << path << std::endl
+                     << "host: "
+                     << req->getHeaderAttr("host") << std::endl;
+
+                     logger->log(ss.str());
+                 }
+             }
+        );
+
+        if (!config->isDaemon()) {
+            std::cin.get();
+            server->stop();
+        }
+        server->wait();
+    }
+    catch (std::exception const &e) {
+        logger->err(e.what());
+        exit(EXIT_FAILURE);
+        //return EXIT_FAILURE;
+    }
+
+    exit(EXIT_SUCCESS);
+    //return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------
+int workStopFunc() {
+    LoggerPtr& logger = AppServices::getLogger();
+    logger->log("Stopping server...");
+
+    server->stop();
+    server->wait();
+
+    server.reset();
+
+    logger->log("Server stopped successfully!");
+    return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------
+int workRereadConfigFunc() {
+
+    workStopFunc();
+
+    AppServices::setLogger(LoggerPtr(new SyslogLogger));
+
+    initServices(true);
+
+    AppServices& services = AppServices::getInstance();
+    const AppConfig* config = services.getService<AppConfig>();
+    if (!config->isLogging()) {
+        AppServices::setLogger(LoggerPtr(new NullLogger));
+    }
+
+    workFunc();
+
+    return EXIT_SUCCESS;
+}
+
+//----------------------------------------------------------------------
+void initServices(bool isDaemon, const char* _pathToConfig) {
+    AppServices& services = AppServices::getInstance();
+    LoggerPtr& logger = AppServices::getLogger();
+
+    services.clear();
+
+    std::string pathToConfig;
+    if (_pathToConfig == nullptr) {
+        pathToConfig = gPathToConfig;
+    } else {
+        pathToConfig = std::string(_pathToConfig);
+    }
+
+    ServicePtr iConfig(new AppConfig(pathToConfig));
+    AppConfig* config = static_cast<AppConfig*>(iConfig.get());
+
+    logger->log("Config reading...");
+    if (config->init() == false) {
+        logger->err("init app config failed!");
+        exit(EXIT_FAILURE);
+    }
+    config->setDaemon(isDaemon);
+    services.addService(iConfig);
+    logger->log("Config reading : SUCCESS");
+
+    if (config->isCachingEnabled()) {
+        ServicePtr iCache(new CacheService(config->getMemcachedServerPort()));
+        if (iCache->init() == false) {
+            logger->err("init cache service failed!");
+            exit(EXIT_FAILURE);
+        }
+
+        services.addService(iCache);
+    }
+}
+
+//----------------------------------------------------------------------
+std::string getConfigPath() {
+#if USE_BOOST_FILEPATH
+    return boost::filesystem::current_path().string() + "/config.json";
+#else
+    char pathbuf[PATH_MAX];
+    char *pathres = realpath("./config.json", pathbuf);
+    if (!pathres) {
+        AppServices::getLogger()->err("realpath for config.json failed!");
+        free(pathres);
+        exit(EXIT_FAILURE);
+    }
+    return std::string(pathres);
+#endif
 }
