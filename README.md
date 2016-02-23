@@ -2,6 +2,7 @@
 
 Small HTTP-server for static content, based on libevent. Uses C++11, Boost library and memcached.
 Implemented logger (console and syslog), demonizer (you can start http server as daemon), config in JSON format, multithreading and caching (based on memcached).
+The base of this project was an article https://habrahabr.ru/post/217437/
 
 ### What is this repository for? ###
 
