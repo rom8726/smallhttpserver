@@ -1,11 +1,11 @@
 #include "http_server.h"
 #include "demonizer.h"
+#include "null_logger.h"
+#include "syslog_logger.h"
 #include "proj_defs.h"
 
 #include <iostream>
 #include <sstream>
-#include <null_logger.h>
-#include <syslog_logger.h>
 
 #if USE_BOOST_FILEPATH
 #include <boost/filesystem.hpp>

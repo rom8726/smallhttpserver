@@ -1,6 +1,6 @@
-#include <syslog.h>
-
 #include "syslog_logger.h"
+
+#include <syslog.h>
 
 namespace Common {
 
